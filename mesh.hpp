@@ -8,36 +8,40 @@
 //
 class Mesh {
 
-private:
-
     struct Triplet {
         unsigned int a, b, c;
         Triplet(unsigned int i = 0, unsigned int j = 0, unsigned int k = 0):
             a(i), b(j), c(k) {}
     };
 
-    int verteces_number_, faces_number_, normals_number_;
-    vec3 *verteces_, *faces_, *normals_;
+//
+// Geometry container: vertices, normals, faces, vertex normals corresponding
+// to faces.
+//
+private:
+
+    vec3 *vertecis_, *faces_, *normals_;
+    int vertecis_number_, faces_number_, normals_number_;
 
 public:
 
     Mesh() {
-        verteces_number_ = 0;
-        faces_number_ = 0;
-        normals_number_ = 0;
-        verteces_ = 0;
+        vertecis_ = 0;
         faces_ = 0;
         normals_ = 0;
+        vertecis_number_ = 0;
+        faces_number_ = 0;
+        normals_number_ = 0;
     }
 
     // Reading .obj file, assuming that vertices go before normals and faces
     Mesh(const char* obj_file) {
-        verteces_number_ = 0;
-        faces_number_ = 0;
-        normals_number_ = 0;
-        verteces_ = 0;
+        vertecis_ = 0;
         normals_ = 0;
         faces_ = 0;
+        vertecis_number_ = 0;
+        faces_number_ = 0;
+        normals_number_ = 0;
 
         std::ifstream file(obj_file);
         std::string word, A, B, C;
@@ -47,74 +51,75 @@ public:
             return;
         }
 
-        List <vec3> verteces_list;
-        //List <vec3> normals_list;
+        List <vec3> vertecis_list;
+        List <vec3> normals_list;
         List <Triplet> faces_indeces;
-        //List <Triplet> normals_indeces;
+        List <Triplet> normals_indeces;
 
         //
-        // Here assumed that there are two '/' between the face and normal
-        // indeces, i.e. 1//2
+        // Assuming only triangular polygons
         //
         while (file >> word)
             if (word[0] == '#')                 // Comment line
                 getline(file, word);
-            else if (word == "v")               // Verteces
-                file >> verteces_list;
-//            else if (word == "vn")              // Vertex normals
-//                file >> normals_list;
+            else if (word == "v")               // vertecis
+                file >> vertecis_list;
+            else if (word == "vn")              // Vertex normals
+                file >> normals_list;
             else if (word == "f") {             // Faces, only triangles
                 file >> A >> B >> C;
                 std::stringstream X(A), Y(B), Z(C);
 
-                Triplet face_triplet;//, normal_triplet;
+                Triplet f_triplet, n_triplet;
 
-                X >> face_triplet.a;
-                Y >> face_triplet.b;
-                Z >> face_triplet.c;
+                X >> f_triplet.a, Y >> f_triplet.b, Z >> f_triplet.c;
 
-                faces_indeces.push(face_triplet);
-/*
+                faces_indeces.push(f_triplet);
+
                 if (X.peek() == '/' && Y.peek() == '/' && Z.peek() == '/') {
                     X.get(), Y.get(), Z.get();
 
                     if (X.peek() == '/' && Y.peek() == '/' && Z.peek() == '/')
                         X.get(), Y.get(), Z.get();
 
-                    X >> normal_triplet.a;
-                    Y >> normal_triplet.b;
-                    Z >> normal_triplet.c;
+                    X >> n_triplet.a, Y >> n_triplet.b, Z >> n_triplet.c;
 
-                    normals_indeces.push(face_triplet);
-                } else
-                    continue;
-*/
+                    normals_indeces.push(n_triplet);
+                }
             }
 
-        verteces_number_ = verteces_list.length();
-        verteces_ = new vec3[verteces_number_];
-        for (int i = 0; i < verteces_number_; i++)
-            verteces_[i] = verteces_list.pop_head();
+        // Array of vertecis
+        vertecis_number_ = vertecis_list.length();
+        vertecis_ = new vec3[vertecis_number_];
+        for (int i = 0; i < vertecis_number_; i++)
+            vertecis_[i] = vertecis_list.pop_head();
 
+        // Array of normals
+        normals_number_ = normals_list.length();
+        normals_ = new vec3[normals_number_];
+        for (int i = 0; i < normals_number_; i++)
+            normals_[i] = normals_list.pop_head();
+
+        // Array of faces built by vertex indeces
         faces_number_ = faces_indeces.length();
         faces_ = new vec3[faces_number_ * 3];
         for (int i = 0; i < faces_number_ * 3; i += 3) {
             Triplet t = faces_indeces.pop_head();
 
-            faces_[i]     = verteces_[t.a - 1];
-            faces_[i + 1] = verteces_[t.b - 1];
-            faces_[i + 2] = verteces_[t.c - 1];
+            faces_[i]     = vertecis_[t.a - 1];
+            faces_[i + 1] = vertecis_[t.b - 1];
+            faces_[i + 2] = vertecis_[t.c - 1];
         }
     }
 
     ~Mesh() {
-        delete[] verteces_;
+        delete[] vertecis_;
         delete[] normals_;
         delete[] faces_;
     }
 
-    vec3* verteces() { return verteces_; }
-    int verteces_number() { return verteces_number_; }
+    vec3* vertecis() { return vertecis_; }
+    int vertecis_number() { return vertecis_number_; }
 
     vec3* faces() { return faces_; }
     int faces_number() { return faces_number_; }
@@ -126,12 +131,12 @@ public:
     vec3* bounding_box() {
         vec3 max, min;
 
-        for (int i = 0; i < verteces_number_; i++)
+        for (int i = 0; i < vertecis_number_; i++)
             for (int j = 0; j < 3; j++)
-                if (verteces_[i][j] > max[j])
-                    max[j] = verteces_[i][j];
-                else if (verteces_[i][j] < min[j])
-                    min[j] = verteces_[i][j];
+                if (vertecis_[i][j] > max[j])
+                    max[j] = vertecis_[i][j];
+                else if (vertecis_[i][j] < min[j])
+                    min[j] = vertecis_[i][j];
 
         max += vec3(0.05, 0.05, 0.05);
         min -= vec3(0.05, 0.05, 0.05);
