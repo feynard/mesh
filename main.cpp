@@ -14,7 +14,7 @@ vec3 *geometry;
 
 void init(int argc, char **argv)
 {
-    Mesh my_mesh("obj_files/quad_sphere.obj");
+    Mesh my_mesh("obj_files/banana.obj");
 
     geometry = my_mesh.faces();
     number_of_points = my_mesh.faces_number() * 3;
