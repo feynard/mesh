@@ -16,6 +16,18 @@ struct vec2 {
         if (std::abs(b) < zero_tolerance) y = 0;
     }
 
+    // Vector normalization
+    void normalize() {
+        double l = sqrt(x*x + y*y);
+        x /= l;
+        y /= l;
+    }
+
+    void normalize(double r) {
+        double l = sqrt(x*x + y*y);
+        x = x / l * r;
+        y = y / l * r;
+    }
 
     //
     // Operator overloading
@@ -77,11 +89,6 @@ GLfloat dot(const vec2& u, const vec2& v) {
 // Length of a vector
 GLfloat length(const vec2& v) {
     return sqrt(v.x * v.x + v.y * v.y);
-}
-
-// Vector normalization
-vec2 normalize(const vec2& v) {
-    return v / length(v);
 }
 
 

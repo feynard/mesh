@@ -66,12 +66,11 @@ public:
                 file >> vertecis_list;
             else if (word == "vn")              // Vertex normals
                 file >> normals_list;
-            else if (word == "f") {             // Faces, only triangles
-                file >> A >> B >> C;
-                std::stringstream X(A), Y(B), Z(C);
-
+            else if (word == "f") {             // Faces (only triangles)
                 Triplet f_triplet, n_triplet;
 
+                file >> A >> B >> C;
+                std::stringstream X(A), Y(B), Z(C);
                 X >> f_triplet.a, Y >> f_triplet.b, Z >> f_triplet.c;
 
                 faces_indeces.push(f_triplet);
