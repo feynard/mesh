@@ -1,8 +1,25 @@
 // Generic, oredered, doubly linked list
 
+//
 //          root    1       2    ... tail
 //          next -> next -> next ... next -> null
 //  null <- prev <- prev <- prev ... prev
+//
+
+//
+// Loops
+//
+// list.set_i();
+// while(list.i()) {
+//     ...
+//     list.iterate();
+// }
+//
+// for(list.set_i(); list.i(); list.iterate()) {
+//     ...
+// }
+//
+
 
 template <class D> class List {
 
@@ -18,6 +35,7 @@ private:
 
     Node* root_;        // Head of a list
     Node* tail_;        // Pointer to the tail of a list
+    Node* current_;     // Inner iterator
     int n_;             // Number of elements
 
 public:
@@ -40,6 +58,19 @@ public:
     //
     // Methods
     //
+
+    // Iterator
+    void set_i()
+    { current_ = root_; }
+
+    bool i()
+    { return current_ != 0 ? true : false; }
+
+    void iterate()
+    { current_ = current_ -> next; }
+
+    const D* get_i()
+    { return &(current_ -> var); }
 
     // Add element to the tail, O(1)
     void push(const D& x) {

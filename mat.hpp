@@ -5,8 +5,6 @@
 //
 class mat2 {
 
-private:
-
     vec2 M[2];
 
 public:
@@ -65,7 +63,7 @@ public:
     // Compound assignment
     mat2& operator += (const mat2& A)
     { M[0] += A[0]; M[1] += A[1]; return *this; }
-    
+
     mat2& operator -= (const mat2& A)
     { M[0] -= A[0]; M[1] -= A[1]; return *this; }
 

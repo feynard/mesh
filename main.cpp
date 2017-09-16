@@ -1,6 +1,6 @@
 #include "graphics_support.hpp"
 #include "mat.hpp"
-#include "mesh.hpp"
+#include "scene.hpp"
 
 using namespace std;
 
@@ -8,39 +8,35 @@ using namespace std;
 GLuint Theta;
 double theta = 0;
 
+GLuint EdgeColor;
+vec4 edge_color(220 / 255.0, 50 / 255.0, 47 / 255.0, 1.0);
+
 // Main geometric container
-int number_of_points;
-vec3 *geometry;
+//int number_of_points;
+//vec3 *geometry;
+
+Mesh my_mesh_1, my_mesh_2;
+GLuint vao;
 
 void init(int argc, char **argv)
 {
-    Mesh my_mesh("obj_files/blob.obj");
-
-    geometry = my_mesh.faces();
-    number_of_points = my_mesh.faces_number() * 3;
-
-    // Create a vertex array object
-    GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    // Create and initialize a buffer object
-    GLuint buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, number_of_points * sizeof(vec3), geometry,
-        GL_STATIC_DRAW);
+    my_mesh_1.load("obj_files/ico.obj");
+    my_mesh_2.load("obj_files/banana.obj");
 
     // Load shaders and use the resulting shader program
     GLuint program = ShaderInit("shader.vert", "shader.frag");
     glUseProgram(program);
 
     // Initialize the vertex position attribute from the vertex shader
-    GLuint loc = glGetAttribLocation(program, "vPosition");
+    GLuint loc = glGetAttribLocation(program, "vertexPosition");
+    Theta = glGetUniformLocation(program, "theta");
+    EdgeColor = glGetUniformLocation(program, "edgeColor");
+
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-
-    Theta = glGetUniformLocation(program, "theta");
 
     glClearColor(7.0 / 255, 54.0 / 255, 66.0 / 255, 1.0);
 }
@@ -49,14 +45,17 @@ void init(int argc, char **argv)
 // Default vieport size
 GLint Width = 600, Height = 600;
 GLsizei CurrentWidth = 960, CurrentHeight = 600;
-char str[] = "Quit";
+char str[] = "Quit (ESC)";
 
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
+
     glUniform1f(Theta, theta);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDrawArrays(GL_TRIANGLES, 0, number_of_points);
+    glUniform4fv(EdgeColor, 1, (GLfloat*) &edge_color);
+
+    my_mesh_1.draw();
+    my_mesh_2.draw();
 
     glWindowPos2i(5, 5);
     for (int i = 0; i < strlen(str); i++)

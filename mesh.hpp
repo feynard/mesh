@@ -4,7 +4,7 @@
 #include "list.hpp"
 
 //
-// Mesh container for .obj file
+// Mesh container
 //
 class Mesh {
 
@@ -14,14 +14,23 @@ class Mesh {
             a(i), b(j), c(k) {}
     };
 
+    enum DrawMode {WIRE, FILL};
+
 //
 // Geometry container: vertices, normals, faces, vertex normals corresponding
 // to faces.
 //
-private:
 
     vec3 *vertecis_, *faces_, *normals_;
     int vertecis_number_, faces_number_, normals_number_;
+
+    vec4 edge_color_;
+
+    DrawMode f_draw_mode_;          // Faces draw mode (wireframe or fill)
+    bool vn_draw;                   // Draw vertex normals
+    bool fn_draw;                   // Draw faces normals (need to calculate)
+
+    GLuint buf;                     // Main vertex buffer object
 
 public:
 
@@ -32,17 +41,24 @@ public:
         vertecis_number_ = 0;
         faces_number_ = 0;
         normals_number_ = 0;
+        edge_color_ = vec4(0, 0, 0, 0);
+        f_draw_mode_ = WIRE;
+        vn_draw = false;
+        fn_draw = false;
+    }
+
+    Mesh(const char* obj_file) {
+        load(obj_file);
+    }
+
+    ~Mesh() {
+        delete[] vertecis_;
+        delete[] normals_;
+        delete[] faces_;
     }
 
     // Reading .obj file, assuming that vertices go before normals and faces
-    Mesh(const char* obj_file) {
-        vertecis_ = 0;
-        normals_ = 0;
-        faces_ = 0;
-        vertecis_number_ = 0;
-        faces_number_ = 0;
-        normals_number_ = 0;
-
+    void load(const char* obj_file) {
         std::ifstream file(obj_file);
         std::string word, A, B, C;
 
@@ -109,12 +125,18 @@ public:
             faces_[i + 1] = vertecis_[t.b - 1];
             faces_[i + 2] = vertecis_[t.c - 1];
         }
+
+        glGenBuffers(1, &buf);
+        glBindBuffer(GL_ARRAY_BUFFER, buf);
+        glBufferData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3), faces_,
+            GL_STATIC_DRAW);
     }
 
-    ~Mesh() {
-        delete[] vertecis_;
-        delete[] normals_;
-        delete[] faces_;
+    void draw() {
+        glBindBuffer(GL_ARRAY_BUFFER, buf);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDrawArrays(GL_TRIANGLES, 0, faces_number_ * 3);
     }
 
     vec3* vertecis() { return vertecis_; }
@@ -126,26 +148,4 @@ public:
     vec3* normals() { return normals_; }
     int normals_number() { return normals_number_; }
 
-    // Unfinished
-    vec3* bounding_box() {
-        vec3 max, min;
-
-        for (int i = 0; i < vertecis_number_; i++)
-            for (int j = 0; j < 3; j++)
-                if (vertecis_[i][j] > max[j])
-                    max[j] = vertecis_[i][j];
-                else if (vertecis_[i][j] < min[j])
-                    min[j] = vertecis_[i][j];
-
-        max += vec3(0.05, 0.05, 0.05);
-        min -= vec3(0.05, 0.05, 0.05);
-
-        vec3 *box = new vec3[4];
-        box[0] = vec3(min[0], min[1], min[2]);
-        box[1] = vec3(min[0], max[1], min[2]);
-        box[2] = vec3(min[0], max[1], max[2]);
-        box[3] = vec3(max[0], max[1], max[2]);
-
-        return box;
-    }
 };
