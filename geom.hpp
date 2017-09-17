@@ -1,5 +1,5 @@
 
-
+// Delete half of this file
 // Generating a sphere from tetrahedron
 
 vec2* faces_spherical;
