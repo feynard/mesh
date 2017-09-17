@@ -30,13 +30,13 @@ void Init(int argc, char **argv)
     Theta = glGetUniformLocation(program, "theta");
     Color = glGetUniformLocation(program, "edge_color");
 
-    my_mesh_1.load("obj_files/teapot.obj");
+    my_mesh_1.load("obj_files/cube.obj");
     my_mesh_1.color(Color);
     //my_mesh_2.load("obj_files/banana.obj");
     //my_mesh_1.color(Color);
 
     my_scene.add_object(&my_mesh_1);
-    my_scene.add_object(&my_mesh_2);
+    //my_scene.add_object(&my_mesh_2);
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -51,9 +51,10 @@ GLsizei CurrentWidth = 960, CurrentHeight = 600;
 
 // Interface commands list
 const char *interface[] = {
-    "Quit (esc)",
+    "Quit (ESC)",
     "Rotation (r)",
-    "Vertex Normals (n)"
+    "Vertex Normals (v)",
+    "Faces Normals (f)"
 };
 
 // Draw list of commands
@@ -117,8 +118,12 @@ void keyboard(int key, int x, int y)
         play ? glutIdleFunc(NULL) : glutIdleFunc(idle);
         play ? play = false : play = true;
     }
-    if (key == 'n') {
-        my_mesh_1.normals_drawing();
+    if (key == 'v') {
+        my_mesh_1.vertex_normals_drawing();
+        glutPostRedisplay();
+    }
+    if (key == 'f') {
+        my_mesh_1.face_normals_drawing();
         glutPostRedisplay();
     }
 
