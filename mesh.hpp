@@ -15,15 +15,15 @@ class Mesh {
     };
 
     // Geometric data
-    vec3 *vertecis_, *faces_, *normals_, *vertecis_normals_;
+    vec3 *vertecis_, *faces_, *normals_, *vertex_normals_;
     int vertecis_number_, faces_number_, normals_number_;
 
     GLuint color_loc_;              // Color attribute location
     vec4 face_color_;
     vec4 vertex_normal_color_;
 
-    bool vn_draw;                   // Draw vertex normals
-    bool fn_draw;                   // Draw faces normals (need to calculate)
+    bool vn_draw_;                  // Draw vertex normals
+    bool fn_draw_;                  // Draw faces normals (need to calculate)
 
     GLuint buf;                     // Main vertex buffer object
 
@@ -33,13 +33,14 @@ public:
         vertecis_ = 0;
         faces_ = 0;
         normals_ = 0;
+        vertex_normals_ = 0;
         vertecis_number_ = 0;
         faces_number_ = 0;
         normals_number_ = 0;
         face_color_ = vec4(220 / 255.0, 50 / 255.0, 47 / 255.0, 1);
         vertex_normal_color_ = vec4(181 / 255.0, 137 / 255.0, 0 / 255.0, 1);
-        vn_draw = false;
-        fn_draw = false;
+        vn_draw_ = false;
+        fn_draw_ = false;
     }
 
     Mesh(const char* obj_file) {
@@ -50,7 +51,7 @@ public:
         delete[] vertecis_;
         delete[] normals_;
         delete[] faces_;
-        delete[] vertecis_normals_;
+        delete[] vertex_normals_;
         glDeleteBuffers(1, &buf);
     }
 
@@ -62,7 +63,7 @@ public:
             delete[] vertecis_;
             delete[] normals_;
             delete[] faces_;
-            delete[] vertecis_normals_;
+            delete[] vertex_normals_;
             glDeleteBuffers(1, &buf);
         }
 
@@ -116,56 +117,60 @@ public:
         for (int i = 0; i < vertecis_number_; i++)
             vertecis_[i] = vertecis_list.pop_head();
 
-        // Array of normals
+        // Array of vertex normals
         normals_number_ = normals_list.length();
         normals_ = new vec3[normals_number_];
         for (int i = 0; i < normals_number_; i++)
             normals_[i] = normals_list.pop_head();
 
         // Array of faces and vertex normals built indeces
-        // Number of points in vertecis_normals_ is equal to 6 * faces_number_
+        // Number of points in vertex_normals_ is equal to 6 * faces_number_
 
         faces_number_ = faces_indeces.length();
 
         faces_ = new vec3[faces_number_ * 3];
 
         if (normals_number_ != 0)
-            vertecis_normals_ = new vec3[faces_number_ * 6];
+            vertex_normals_ = new vec3[faces_number_ * 6];
 
         for (int i = 0; i < faces_number_ * 3; i += 3) {
             Triplet t = faces_indeces.pop_head();
 
+            // Filling faces array
             faces_[i]     = vertecis_[t.a - 1];
             faces_[i + 1] = vertecis_[t.b - 1];
             faces_[i + 2] = vertecis_[t.c - 1];
 
+            // Filling vertex normals if they exist
             if (normals_number_ != 0) {
                 Triplet y = normals_indeces.pop_head();
 
-                vertecis_normals_[2*i]     = faces_[i];
-                vertecis_normals_[2*i + 1] = faces_[i] +
+                vertex_normals_[2*i]     = faces_[i];
+                vertex_normals_[2*i + 1] = faces_[i] +
                     normals_[y.a - 1] / 10;
 
-                vertecis_normals_[2*i + 2] = faces_[i + 1];
-                vertecis_normals_[2*i + 3] = faces_[i + 1] +
+                vertex_normals_[2*i + 2] = faces_[i + 1];
+                vertex_normals_[2*i + 3] = faces_[i + 1] +
                     normals_[y.b - 1] / 10;
 
-                vertecis_normals_[2*i + 4] = faces_[i + 2];
-                vertecis_normals_[2*i + 5] = faces_[i + 2] +
+                vertex_normals_[2*i + 4] = faces_[i + 2];
+                vertex_normals_[2*i + 5] = faces_[i + 2] +
                     normals_[y.c - 1] / 10;
             }
         }
 
+        // Create buffer
         glGenBuffers(1, &buf);
         glBindBuffer(GL_ARRAY_BUFFER, buf);
 
+        // Put vertex normals in buffer if they exist
         if (normals_number_ != 0) {
             glBufferData(GL_ARRAY_BUFFER, faces_number_ * 9 * sizeof(vec3),
                 NULL, GL_STATIC_DRAW);
             glBufferSubData(GL_ARRAY_BUFFER, 0,
                 faces_number_ * 3 * sizeof(vec3), faces_);
             glBufferSubData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3),
-                faces_number_ * 6 * sizeof(vec3), vertecis_normals_);
+                faces_number_ * 6 * sizeof(vec3), vertex_normals_);
         } else
             glBufferData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3),
                 faces_, GL_STATIC_DRAW);
@@ -179,13 +184,21 @@ public:
         glUniform4fv(color_loc_, 1, (GLfloat*) &face_color_);
         glDrawArrays(GL_TRIANGLES, 0, faces_number_ * 3);
 
-        if (normals_number_ != 0) {
+        // Drawing vertex normals
+        if (normals_number_ != 0 && vn_draw_ == true) {
             glUniform4fv(color_loc_, 1, (GLfloat*) &vertex_normal_color_);
             glDrawArrays(GL_LINES, faces_number_ * 3, faces_number_ * 6);
         }
     }
 
     void color(GLuint color_location) { color_loc_ = color_location; }
+
+    void normals_drawing() {
+        if (vn_draw_ == true)
+            vn_draw_ = false;
+        else
+            vn_draw_ = true;
+    }
 
     vec3* vertecis() { return vertecis_; }
     int vertecis_number() { return vertecis_number_; }

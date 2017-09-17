@@ -3,3 +3,5 @@ GL_FRAMEWORKS = -framework OpenGL -framework GLUT
 
 all:
 	g++ $(GCC_FLAGS) $(GL_FRAMEWORKS) *.cpp -o program
+clean:
+	rm -r program.dSYM program

@@ -16,7 +16,7 @@ Scene my_scene;                 // Main scene
 GLuint vao;                     // Main vertex array
 
 
-void init(int argc, char **argv)
+void Init(int argc, char **argv)
 {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -30,10 +30,10 @@ void init(int argc, char **argv)
     Theta = glGetUniformLocation(program, "theta");
     Color = glGetUniformLocation(program, "edge_color");
 
-    my_mesh_1.load("obj_files/ico.obj");
+    my_mesh_1.load("obj_files/teapot.obj");
     my_mesh_1.color(Color);
-    my_mesh_2.load("obj_files/banana.obj");
-    my_mesh_1.color(Color);
+    //my_mesh_2.load("obj_files/banana.obj");
+    //my_mesh_1.color(Color);
 
     my_scene.add_object(&my_mesh_1);
     my_scene.add_object(&my_mesh_2);
@@ -48,7 +48,27 @@ void init(int argc, char **argv)
 // Default vieport size
 GLint Width = 600, Height = 600;
 GLsizei CurrentWidth = 960, CurrentHeight = 600;
-char str[] = "Quit (ESC)";
+
+// Interface commands list
+const char *interface[] = {
+    "Quit (esc)",
+    "Rotation (r)",
+    "Vertex Normals (n)"
+};
+
+// Draw list of commands
+void DrawInterface(GLuint color_location)
+{
+    glUniform4f(color_location, 42 / 255.0, 161 / 255.0, 152 / 255.0, 1);
+
+    int x = 5, y = 5;
+
+    for (int i = 0; i < sizeof(interface) / sizeof(char*); i++) {
+        glWindowPos2i(x, y + i * 18);
+        for (int j = 0; j < strlen(interface[i]); j++)
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, interface[i][j]);
+    }
+}
 
 void display(void)
 {
@@ -57,13 +77,12 @@ void display(void)
     glUniform1f(Theta, theta);
 
     my_scene.draw();
+    DrawInterface(Color);
 
-    glWindowPos2i(5, 5);
-    for (int i = 0; i < strlen(str); i++)
-        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, str[i]);
 
     glFlush();
 }
+
 
 void reshape(GLsizei w, GLsizei h)
 {
@@ -94,10 +113,15 @@ void keyboard(int key, int x, int y)
 {
     if (key == 033)
         exit(EXIT_SUCCESS);
-    if (key == ' ') {
+    if (key == 'r') {
         play ? glutIdleFunc(NULL) : glutIdleFunc(idle);
         play ? play = false : play = true;
     }
+    if (key == 'n') {
+        my_mesh_1.normals_drawing();
+        glutPostRedisplay();
+    }
+
 }
 
 int main(int argc, char **argv)
@@ -113,7 +137,7 @@ int main(int argc, char **argv)
     glutMouseFunc(mouse);
     glutIdleFunc(idle);
 
-    init(argc, argv);
+    Init(argc, argv);
 
     glutMainLoop();
 

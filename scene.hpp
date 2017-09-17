@@ -1,6 +1,10 @@
 #include "mesh.hpp"
 
 class Scene {
+    class Camera {
+        vec3 position;
+        vec3 view_direction;
+    };
 
     List <Mesh*> objects;
 
