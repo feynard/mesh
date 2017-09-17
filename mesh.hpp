@@ -17,12 +17,17 @@ class Mesh {
     // Geometric data
     vec3 *vertecis_, *faces_, *normals_, *vertex_normals_, *faces_normals_;
     int vertecis_number_, faces_number_, normals_number_;
+    int *faces_mid_indices_;
+
+    vec3 bounding_box_[24];
 
     GLuint color_loc_;              // Color attribute location
     vec4 face_color_;
     vec4 vertex_normal_color_;
     vec4 face_normal_color_;
+    vec4 box_color_;
 
+    bool box_draw_;
     bool vn_draw_;                  // Draw vertex normals
     bool fn_draw_;                  // Draw faces normals (need to calculate)
 
@@ -39,11 +44,15 @@ public:
         vertecis_number_ = 0;
         faces_number_ = 0;
         normals_number_ = 0;
+        faces_mid_indices_ = 0;
         face_color_ = vec4(220 / 255.0, 50 / 255.0, 47 / 255.0, 1);
         vertex_normal_color_ = vec4(181 / 255.0, 137 / 255.0, 0 / 255.0, 1);
         face_normal_color_ = vec4(211 / 255.0, 54 / 255.0, 130 / 255.0, 1);
+        box_color_ = vec4(88 / 255.0, 110 / 255.0, 117 / 255.0, 1);
         vn_draw_ = false;
         fn_draw_ = false;
+        box_draw_ = false;
+        buf = 0;
     }
 
     Mesh(const char* obj_file) {
@@ -56,7 +65,10 @@ public:
         delete[] faces_;
         delete[] vertex_normals_;
         delete[] faces_normals_;
-        glDeleteBuffers(1, &buf);
+        delete[] faces_mid_indices_;
+
+        if (buf != 0)
+            glDeleteBuffers(1, &buf);
     }
 
     // Reading .obj file, assuming that vertices go before normals and faces
@@ -69,7 +81,10 @@ public:
             delete[] faces_;
             delete[] vertex_normals_;
             delete[] faces_normals_;
-            glDeleteBuffers(1, &buf);
+            delete[] faces_mid_indices_;
+
+            if (buf != 0)
+                glDeleteBuffers(1, &buf);
         }
 
         std::ifstream file(obj_file);
@@ -116,11 +131,58 @@ public:
                 }
             }
 
+
+        // x_min, x_max, y_min, y_max, z_min, z_max
+        GLfloat box_limit[6];
+        for (int i = 0; i < 3; i++)
+            box_limit[2 * i + 1] = vertecis_list[0][i];
+
         // Array of vertecis
         vertecis_number_ = vertecis_list.length();
         vertecis_ = new vec3[vertecis_number_];
-        for (int i = 0; i < vertecis_number_; i++)
+        for (int i = 0; i < vertecis_number_; i++) {
             vertecis_[i] = vertecis_list.pop_head();
+
+            // Box limits
+            for (int j = 0; j < 3; j++) {
+                if (vertecis_[i][j] < box_limit[2 * j])
+                    box_limit[2 * j] = vertecis_[i][j];
+                if (vertecis_[i][j] > box_limit[2 * j + 1])
+                    box_limit[2 * j + 1] = vertecis_[i][j];
+            }
+        }
+
+        // Create bounding box (in model frame)
+
+        GLfloat x_min = box_limit[0] - 0.1, x_max = box_limit[1] + 0.1,
+                y_min = box_limit[2] - 0.1, y_max = box_limit[3] + 0.1,
+                z_min = box_limit[4] - 0.1, z_max = box_limit[5] + 0.1;
+
+        bounding_box_[0] = vec3(x_min, y_min, z_min);
+        bounding_box_[1] = vec3(x_max, y_min, z_min);
+        bounding_box_[2] = vec3(x_min, y_min, z_max);
+        bounding_box_[3] = vec3(x_max, y_min, z_max);
+        bounding_box_[4] = vec3(x_min, y_max, z_min);
+        bounding_box_[5] = vec3(x_max, y_max, z_min);
+        bounding_box_[6] = vec3(x_min, y_max, z_max);
+        bounding_box_[7] = vec3(x_max, y_max, z_max);
+        bounding_box_[8] = vec3(x_min, y_min, z_min);
+        bounding_box_[9] = vec3(x_min, y_max, z_min);
+        bounding_box_[10] = vec3(x_min, y_min, z_max);
+        bounding_box_[11] = vec3(x_min, y_max, z_max);
+        bounding_box_[12] = vec3(x_max, y_min, z_min);
+        bounding_box_[13] = vec3(x_max, y_max, z_min);
+        bounding_box_[14] = vec3(x_max, y_min, z_max);
+        bounding_box_[15] = vec3(x_max, y_max, z_max);
+        bounding_box_[16] = vec3(x_min, y_min, z_min);
+        bounding_box_[17] = vec3(x_min, y_min, z_max);
+        bounding_box_[18] = vec3(x_min, y_max, z_min);
+        bounding_box_[19] = vec3(x_min, y_max, z_max);
+        bounding_box_[20] = vec3(x_max, y_min, z_min);
+        bounding_box_[21] = vec3(x_max, y_min, z_max);
+        bounding_box_[22] = vec3(x_max, y_max, z_min);
+        bounding_box_[23] = vec3(x_max, y_max, z_max);
+
 
         // Array of vertex normals
         normals_number_ = normals_list.length();
@@ -189,24 +251,38 @@ public:
 
         // Put vertex normals in buffer if they exist
         if (normals_number_ != 0) {
-            glBufferData(GL_ARRAY_BUFFER, faces_number_ * 11 * sizeof(vec3),
-                NULL, GL_STATIC_DRAW);
-            glBufferSubData(GL_ARRAY_BUFFER, 0,
-                faces_number_ * 3 * sizeof(vec3), faces_);
+            glBufferData(GL_ARRAY_BUFFER, faces_number_ * 11 * sizeof(vec3) + 24 * sizeof(vec3),
+                faces_, GL_STATIC_DRAW);
+        //    glBufferSubData(GL_ARRAY_BUFFER, 0,
+        //        faces_number_ * 3 * sizeof(vec3), faces_);
             glBufferSubData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3),
                 faces_number_ * 6 * sizeof(vec3), vertex_normals_);
             glBufferSubData(GL_ARRAY_BUFFER, faces_number_ * 9 * sizeof(vec3),
                 faces_number_ * 2 * sizeof(vec3), faces_normals_);
-        } else
-            glBufferData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3),
+            glBufferSubData(GL_ARRAY_BUFFER, faces_number_ * 11 * sizeof(vec3),
+                24 * sizeof(vec3), bounding_box_);
+
+
+
+            faces_mid_indices_ = new int[faces_number_];
+            for (int i = 0; i < faces_number_; i++)
+                faces_mid_indices_[i] = faces_number_ * 9 + 2 * i;
+
+        } else {
+            glBufferData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3) + 24 * sizeof(vec3),
                 faces_, GL_STATIC_DRAW);
+            glBufferSubData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3),
+                24 * sizeof(vec3), bounding_box_);
+        }
+
     }
 
     void draw() {
         glBindBuffer(GL_ARRAY_BUFFER, buf);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+        // Drawing model
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glUniform4fv(color_loc_, 1, (GLfloat*) &face_color_);
         glDrawArrays(GL_TRIANGLES, 0, faces_number_ * 3);
 
@@ -220,8 +296,15 @@ public:
         if (normals_number_ != 0 && fn_draw_ == true) {
             glUniform4fv(color_loc_, 1, (GLfloat*) &face_normal_color_);
             glDrawArrays(GL_LINES, faces_number_ * 9, faces_number_ * 2);
-            //glPointSize(3);
-            //glDrawArrays(GL_POINTS, faces_number_ * 9, faces_number_ * 2);
+
+            glPointSize(3);
+            glDrawElements(GL_POINTS, faces_number_, GL_UNSIGNED_INT, faces_mid_indices_);
+        }
+
+        // Drawing bounding box in model coordinates
+        if (box_draw_) {
+            glUniform4fv(color_loc_, 1, (GLfloat*) &box_color_);
+            glDrawArrays(GL_LINES, faces_number_ * 11, 24);
         }
     }
 
@@ -232,6 +315,9 @@ public:
 
     void face_normals_drawing()
     { fn_draw_ ? fn_draw_ = false : fn_draw_ = true; }
+
+    void box_drawing()
+    { box_draw_ ? box_draw_ = false : box_draw_ = true; }
 
     vec3* vertecis() { return vertecis_; }
     int vertecis_number() { return vertecis_number_; }

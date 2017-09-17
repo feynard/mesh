@@ -15,7 +15,6 @@ Mesh my_mesh_1, my_mesh_2;
 Scene my_scene;                 // Main scene
 GLuint vao;                     // Main vertex array
 
-
 void Init(int argc, char **argv)
 {
     glGenVertexArrays(1, &vao);
@@ -30,7 +29,11 @@ void Init(int argc, char **argv)
     Theta = glGetUniformLocation(program, "theta");
     Color = glGetUniformLocation(program, "edge_color");
 
-    my_mesh_1.load("obj_files/cube.obj");
+    if (argc > 1)
+        my_mesh_1.load(argv[1]);
+    else
+        my_mesh_1.load("obj_files/teapot.obj");
+
     my_mesh_1.color(Color);
     //my_mesh_2.load("obj_files/banana.obj");
     //my_mesh_1.color(Color);
@@ -41,6 +44,7 @@ void Init(int argc, char **argv)
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
+    glEnable(GL_DEPTH_TEST);
     glClearColor(7.0 / 255, 54.0 / 255, 66.0 / 255, 1.0);
 }
 
@@ -54,7 +58,8 @@ const char *interface[] = {
     "Quit (ESC)",
     "Rotation (r)",
     "Vertex Normals (v)",
-    "Faces Normals (f)"
+    "Faces Normals (f)",
+    "Bounding Box (b)"
 };
 
 // Draw list of commands
@@ -73,15 +78,14 @@ void DrawInterface(GLuint color_location)
 
 void display(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUniform1f(Theta, theta);
 
     my_scene.draw();
     DrawInterface(Color);
 
-
-    glFlush();
+    glutSwapBuffers();
 }
 
 
@@ -126,13 +130,17 @@ void keyboard(int key, int x, int y)
         my_mesh_1.face_normals_drawing();
         glutPostRedisplay();
     }
+    if (key == 'b') {
+        my_mesh_1.box_drawing();
+        glutPostRedisplay();
+    }
 
 }
 
 int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(960, 600);
     glutCreateWindow("Mesh");
 
