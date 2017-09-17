@@ -2,20 +2,17 @@
 
 class Scene {
 
-    List <Mesh> objects;
+    List <Mesh*> objects;
 
 public:
-    Scene() {
 
+    void add_object(Mesh* G) {
+        objects.push(G);
     }
 
-    void add_object(Mesh object);
-    /*
-    void draw_scence() {
-        for (all objects)
-            object.draw();
-
-        draw_grid()
+    void draw() {
+        for (objects.set_iterator(); objects.iterator(); objects.iterate())
+            objects.get_iterator() -> draw();
     }
-    */
+
 };

@@ -8,32 +8,35 @@ using namespace std;
 GLuint Theta;
 double theta = 0;
 
-GLuint EdgeColor;
-vec4 edge_color(220 / 255.0, 50 / 255.0, 47 / 255.0, 1.0);
-
-// Main geometric container
-//int number_of_points;
-//vec3 *geometry;
+GLuint Color;
+vec4 color(220 / 255.0, 50 / 255.0, 47 / 255.0, 1.0);
 
 Mesh my_mesh_1, my_mesh_2;
-GLuint vao;
+Scene my_scene;                 // Main scene
+GLuint vao;                     // Main vertex array
+
 
 void init(int argc, char **argv)
 {
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
-    my_mesh_1.load("obj_files/ico.obj");
-    my_mesh_2.load("obj_files/banana.obj");
-
     // Load shaders and use the resulting shader program
     GLuint program = ShaderInit("shader.vert", "shader.frag");
     glUseProgram(program);
 
     // Initialize the vertex position attribute from the vertex shader
-    GLuint loc = glGetAttribLocation(program, "vertexPosition");
+    GLuint loc = glGetAttribLocation(program, "position");
     Theta = glGetUniformLocation(program, "theta");
-    EdgeColor = glGetUniformLocation(program, "edgeColor");
+    Color = glGetUniformLocation(program, "edge_color");
+
+    my_mesh_1.load("obj_files/ico.obj");
+    my_mesh_1.color(Color);
+    my_mesh_2.load("obj_files/banana.obj");
+    my_mesh_1.color(Color);
+
+    my_scene.add_object(&my_mesh_1);
+    my_scene.add_object(&my_mesh_2);
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -52,10 +55,8 @@ void display(void)
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUniform1f(Theta, theta);
-    glUniform4fv(EdgeColor, 1, (GLfloat*) &edge_color);
 
-    my_mesh_1.draw();
-    my_mesh_2.draw();
+    my_scene.draw();
 
     glWindowPos2i(5, 5);
     for (int i = 0; i < strlen(str); i++)

@@ -14,19 +14,14 @@ class Mesh {
             a(i), b(j), c(k) {}
     };
 
-    enum DrawMode {WIRE, FILL};
-
-//
-// Geometry container: vertices, normals, faces, vertex normals corresponding
-// to faces.
-//
-
-    vec3 *vertecis_, *faces_, *normals_;
+    // Geometric data
+    vec3 *vertecis_, *faces_, *normals_, *vertecis_normals_;
     int vertecis_number_, faces_number_, normals_number_;
 
-    vec4 edge_color_;
+    GLuint color_loc_;              // Color attribute location
+    vec4 face_color_;
+    vec4 vertex_normal_color_;
 
-    DrawMode f_draw_mode_;          // Faces draw mode (wireframe or fill)
     bool vn_draw;                   // Draw vertex normals
     bool fn_draw;                   // Draw faces normals (need to calculate)
 
@@ -41,8 +36,8 @@ public:
         vertecis_number_ = 0;
         faces_number_ = 0;
         normals_number_ = 0;
-        edge_color_ = vec4(0, 0, 0, 0);
-        f_draw_mode_ = WIRE;
+        face_color_ = vec4(220 / 255.0, 50 / 255.0, 47 / 255.0, 1);
+        vertex_normal_color_ = vec4(181 / 255.0, 137 / 255.0, 0 / 255.0, 1);
         vn_draw = false;
         fn_draw = false;
     }
@@ -55,10 +50,22 @@ public:
         delete[] vertecis_;
         delete[] normals_;
         delete[] faces_;
+        delete[] vertecis_normals_;
+        glDeleteBuffers(1, &buf);
     }
 
     // Reading .obj file, assuming that vertices go before normals and faces
     void load(const char* obj_file) {
+
+        // Clear previous data
+        if (vertecis_ != 0) {
+            delete[] vertecis_;
+            delete[] normals_;
+            delete[] faces_;
+            delete[] vertecis_normals_;
+            glDeleteBuffers(1, &buf);
+        }
+
         std::ifstream file(obj_file);
         std::string word, A, B, C;
 
@@ -115,29 +122,70 @@ public:
         for (int i = 0; i < normals_number_; i++)
             normals_[i] = normals_list.pop_head();
 
-        // Array of faces built by vertex indeces
+        // Array of faces and vertex normals built indeces
+        // Number of points in vertecis_normals_ is equal to 6 * faces_number_
+
         faces_number_ = faces_indeces.length();
+
         faces_ = new vec3[faces_number_ * 3];
+
+        if (normals_number_ != 0)
+            vertecis_normals_ = new vec3[faces_number_ * 6];
+
         for (int i = 0; i < faces_number_ * 3; i += 3) {
             Triplet t = faces_indeces.pop_head();
 
             faces_[i]     = vertecis_[t.a - 1];
             faces_[i + 1] = vertecis_[t.b - 1];
             faces_[i + 2] = vertecis_[t.c - 1];
+
+            if (normals_number_ != 0) {
+                Triplet y = normals_indeces.pop_head();
+
+                vertecis_normals_[2*i]     = faces_[i];
+                vertecis_normals_[2*i + 1] = faces_[i] +
+                    normals_[y.a - 1] / 10;
+
+                vertecis_normals_[2*i + 2] = faces_[i + 1];
+                vertecis_normals_[2*i + 3] = faces_[i + 1] +
+                    normals_[y.b - 1] / 10;
+
+                vertecis_normals_[2*i + 4] = faces_[i + 2];
+                vertecis_normals_[2*i + 5] = faces_[i + 2] +
+                    normals_[y.c - 1] / 10;
+            }
         }
 
         glGenBuffers(1, &buf);
         glBindBuffer(GL_ARRAY_BUFFER, buf);
-        glBufferData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3), faces_,
-            GL_STATIC_DRAW);
+
+        if (normals_number_ != 0) {
+            glBufferData(GL_ARRAY_BUFFER, faces_number_ * 9 * sizeof(vec3),
+                NULL, GL_STATIC_DRAW);
+            glBufferSubData(GL_ARRAY_BUFFER, 0,
+                faces_number_ * 3 * sizeof(vec3), faces_);
+            glBufferSubData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3),
+                faces_number_ * 6 * sizeof(vec3), vertecis_normals_);
+        } else
+            glBufferData(GL_ARRAY_BUFFER, faces_number_ * 3 * sizeof(vec3),
+                faces_, GL_STATIC_DRAW);
     }
 
     void draw() {
         glBindBuffer(GL_ARRAY_BUFFER, buf);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glUniform4fv(color_loc_, 1, (GLfloat*) &face_color_);
         glDrawArrays(GL_TRIANGLES, 0, faces_number_ * 3);
+
+        if (normals_number_ != 0) {
+            glUniform4fv(color_loc_, 1, (GLfloat*) &vertex_normal_color_);
+            glDrawArrays(GL_LINES, faces_number_ * 3, faces_number_ * 6);
+        }
     }
+
+    void color(GLuint color_location) { color_loc_ = color_location; }
 
     vec3* vertecis() { return vertecis_; }
     int vertecis_number() { return vertecis_number_; }

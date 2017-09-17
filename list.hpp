@@ -7,15 +7,15 @@
 //
 
 //
-// Loops
+// Loops:
 //
-// list.set_i();
+// list.set_iterator();
 // while(list.i()) {
 //     ...
 //     list.iterate();
 // }
 //
-// for(list.set_i(); list.i(); list.iterate()) {
+// for(list.set_iterator(); list.iterator(); list.iterate()) {
 //     ...
 // }
 //
@@ -60,17 +60,18 @@ public:
     //
 
     // Iterator
-    void set_i()
+    void set_iterator()
     { current_ = root_; }
 
-    bool i()
+    bool iterator()
     { return current_ != 0 ? true : false; }
 
     void iterate()
     { current_ = current_ -> next; }
 
-    const D* get_i()
-    { return &(current_ -> var); }
+    D& get_iterator()
+    { return current_ -> var; }
+
 
     // Add element to the tail, O(1)
     void push(const D& x) {

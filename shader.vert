@@ -1,4 +1,4 @@
-attribute vec4 vertexPosition;
+attribute vec4 position;
 uniform float theta;
 
 float pi = 3.14159265358979323846;
@@ -24,5 +24,5 @@ void main() {
          0.0,  0.0,  0.0,  1.0
     );
 
-    gl_Position = Rx * Ry * vertexPosition;
+    gl_Position = Rx * Ry * position;
 }
