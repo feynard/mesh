@@ -1,0 +1,26 @@
+To think about (have to):
+    * Transformation controls, move, scale, rotate
+
+    * Maya viewing controls
+
+    * Adding camera class or structure, to hold all the necessary
+    transformations for the scene.
+
+    * Child class of Mesh with "hardcoded" simple geometry. I still don't
+    understand what does it mean?
+
+    * I think there should be done some work concerned with how .hpp files are 
+    included for now there is some mess. For example, graphic_support.hpp
+    compiles because of shader_init.cpp, which is not so good: it's impossible
+    to add something new to it with generic types, vectors and matrices.
+
+To add:
+
+    * Adding new colour themes feature would be great. For example, define a
+    structure ColorScheme, which holds six colors, that can be used as
+    background, font, edges/faces, vertex normals, face normals colours,
+    respectively, of course. Then it can be passed to Mesh container and used
+    several times in main drawing loop for background and text colours.
+
+    * Create camera model, like in Maya, for example, to render all the cameras
+    in scene with it.

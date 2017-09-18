@@ -8,6 +8,9 @@ using namespace std;
 GLuint Theta;
 double theta = 0;
 
+GLuint CamPos, CamRot;
+
+
 GLuint Color;
 vec4 color(220 / 255.0, 50 / 255.0, 47 / 255.0, 1.0);
 
@@ -28,6 +31,10 @@ void Init(int argc, char **argv)
     GLuint loc = glGetAttribLocation(program, "position");
     Theta = glGetUniformLocation(program, "theta");
     Color = glGetUniformLocation(program, "edge_color");
+    CamPos = glGetUniformLocation(program, "cam_position");
+    CamRot = glGetUniformLocation(program, "cam_rotation");
+
+    my_scene.init(Theta, Color);
 
     if (argc > 1)
         my_mesh_1.load(argv[1]);
@@ -35,17 +42,16 @@ void Init(int argc, char **argv)
         my_mesh_1.load("obj_files/teapot.obj");
 
     my_mesh_1.color(Color);
-    //my_mesh_2.load("obj_files/banana.obj");
-    //my_mesh_1.color(Color);
-
     my_scene.add_object(&my_mesh_1);
-    //my_scene.add_object(&my_mesh_2);
+    my_scene.set_camera_attributes(CamPos, CamRot);
+    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(pi / 4, 0.61548, 0));
+//    my_scene.add_camera(vec3(0, 0, 0), vec3(0, 0, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
     glEnable(GL_DEPTH_TEST);
-    glClearColor(7.0 / 255, 54.0 / 255, 66.0 / 255, 1.0);
+    glClearColor(0 / 255.0, 43 / 255.0, 54 / 255.0, 1.0);
 }
 
 
@@ -83,6 +89,7 @@ void display(void)
     glUniform1f(Theta, theta);
 
     my_scene.draw();
+
     DrawInterface(Color);
 
     glutSwapBuffers();
@@ -102,6 +109,8 @@ void mouse(int button, int state, int x, int y)
         if (5 <= x && x <= 37 &&
             CurrentHeight - 5 >= y && y >= CurrentHeight - 18)
             exit(EXIT_SUCCESS);
+
+    // Rotation about y axis
 }
 
 void idle() {
@@ -118,20 +127,21 @@ void keyboard(int key, int x, int y)
 {
     if (key == 033)
         exit(EXIT_SUCCESS);
+    // Animation of rotation, mainly for debug
     if (key == 'r') {
         play ? glutIdleFunc(NULL) : glutIdleFunc(idle);
         play ? play = false : play = true;
     }
     if (key == 'v') {
-        my_mesh_1.vertex_normals_drawing();
+        my_mesh_1.toogle_vertex_normals();
         glutPostRedisplay();
     }
     if (key == 'f') {
-        my_mesh_1.face_normals_drawing();
+        my_mesh_1.toogle_face_normals();
         glutPostRedisplay();
     }
     if (key == 'b') {
-        my_mesh_1.box_drawing();
+        my_mesh_1.toogle_bounding_box();
         glutPostRedisplay();
     }
 
