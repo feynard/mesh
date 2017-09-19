@@ -6,10 +6,9 @@ using namespace std;
 
 // Rotation parameter
 GLuint Theta;
-double theta = 0;
+GLfloat theta[2];
 
 GLuint CamPos, CamRot;
-
 
 GLuint Color;
 vec4 color(220 / 255.0, 50 / 255.0, 47 / 255.0, 1.0);
@@ -34,7 +33,7 @@ void Init(int argc, char **argv)
     CamPos = glGetUniformLocation(program, "cam_position");
     CamRot = glGetUniformLocation(program, "cam_rotation");
 
-    my_scene.init(Theta, Color);
+    my_scene.init(Color, CamPos, CamRot);
 
     if (argc > 1)
         my_mesh_1.load(argv[1]);
@@ -43,14 +42,13 @@ void Init(int argc, char **argv)
 
     my_mesh_1.color(Color);
     my_scene.add_object(&my_mesh_1);
-    my_scene.set_camera_attributes(CamPos, CamRot);
-    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(pi / 4, 0.61548, 0));
-//    my_scene.add_camera(vec3(0, 0, 0), vec3(0, 0, 0));
+    my_scene.add_camera(vec3(0.2, 0.2, 0.2), vec3(0.61548, 3 * pi / 4, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
     glEnable(GL_DEPTH_TEST);
+
     glClearColor(0 / 255.0, 43 / 255.0, 54 / 255.0, 1.0);
 }
 
@@ -86,8 +84,6 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUniform1f(Theta, theta);
-
     my_scene.draw();
 
     DrawInterface(Color);
@@ -102,36 +98,12 @@ void reshape(GLsizei w, GLsizei h)
     glViewport((w - Width) / 2, (h - Height) / 2, Width, Height);
 }
 
-void mouse(int button, int state, int x, int y)
-{
-    // Quit button
-    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-        if (5 <= x && x <= 37 &&
-            CurrentHeight - 5 >= y && y >= CurrentHeight - 18)
-            exit(EXIT_SUCCESS);
 
-    // Rotation about y axis
-}
-
-void idle() {
-    theta += 0.01;
-
-    if (theta >= 2 * pi)
-        theta -= 2 * pi;
-
-    glutPostRedisplay();
-}
-
-bool play = true;
 void keyboard(int key, int x, int y)
 {
     if (key == 033)
         exit(EXIT_SUCCESS);
-    // Animation of rotation, mainly for debug
-    if (key == 'r') {
-        play ? glutIdleFunc(NULL) : glutIdleFunc(idle);
-        play ? play = false : play = true;
-    }
+
     if (key == 'v') {
         my_mesh_1.toogle_vertex_normals();
         glutPostRedisplay();
@@ -142,6 +114,14 @@ void keyboard(int key, int x, int y)
     }
     if (key == 'b') {
         my_mesh_1.toogle_bounding_box();
+        glutPostRedisplay();
+    }
+    if (key == 'r') {
+        theta[0] += 0.01;
+
+        if (theta[0] >= 2 * pi)
+            theta[0] -= 2 * pi;
+
         glutPostRedisplay();
     }
 
@@ -157,8 +137,6 @@ int main(int argc, char **argv)
     glutDisplayFunc(display);
     glutSpecialFunc(keyboard);
     glutReshapeFunc(reshape);
-    glutMouseFunc(mouse);
-    glutIdleFunc(idle);
 
     Init(argc, argv);
 

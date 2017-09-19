@@ -10,7 +10,7 @@ struct vec2 {
     GLfloat y;
 
     // Constructor
-    vec2 (GLfloat a = 0, GLfloat b = 0) {
+    vec2(GLfloat a = 0, GLfloat b = 0) {
         x = a, y = b;
         if (std::abs(a) < zero_tolerance) x = 0;
         if (std::abs(b) < zero_tolerance) y = 0;
@@ -101,7 +101,7 @@ struct vec3 {
     GLfloat z;
 
     // Constructor
-    vec3 (GLfloat a = 0, GLfloat b = 0, GLfloat c = 0) {
+    vec3(GLfloat a = 0, GLfloat b = 0, GLfloat c = 0) {
         x = a, y = b, z = c;
         if (std::abs(a) < zero_tolerance) x = 0;
         if (std::abs(b) < zero_tolerance) y = 0;
@@ -206,12 +206,16 @@ struct vec4 {
     GLfloat w;
 
     // Constructor
-    vec4 (GLfloat a = 0, GLfloat b = 0, GLfloat c = 0, GLfloat d = 0) {
+    vec4(GLfloat a = 0, GLfloat b = 0, GLfloat c = 0, GLfloat d = 0) {
         x = a, y = b, z = c, w = d;
         if (std::abs(a) < zero_tolerance) x = 0;
         if (std::abs(b) < zero_tolerance) y = 0;
         if (std::abs(c) < zero_tolerance) z = 0;
         if (std::abs(c) < zero_tolerance) w = 0;
+    }
+
+    vec4(vec3 v, GLfloat t) {
+        x = v.x, y = v.y, z = v.z, w = t;
     }
 
     // Vector normalization
