@@ -4,13 +4,8 @@
 
 using namespace std;
 
-// Rotation parameter
-GLuint Theta;
-GLfloat theta[2];
+GLuint CamPos, CamRot, Color;
 
-GLuint CamPos, CamRot;
-
-GLuint Color;
 vec4 color(220 / 255.0, 50 / 255.0, 47 / 255.0, 1.0);
 
 Mesh my_mesh_1, my_mesh_2;
@@ -28,7 +23,6 @@ void Init(int argc, char **argv)
 
     // Initialize the vertex position attribute from the vertex shader
     GLuint loc = glGetAttribLocation(program, "position");
-    Theta = glGetUniformLocation(program, "theta");
     Color = glGetUniformLocation(program, "edge_color");
     CamPos = glGetUniformLocation(program, "cam_position");
     CamRot = glGetUniformLocation(program, "cam_rotation");
@@ -43,6 +37,7 @@ void Init(int argc, char **argv)
     my_mesh_1.color(Color);
     my_scene.add_object(&my_mesh_1);
     my_scene.add_camera(vec3(0.2, 0.2, 0.2), vec3(0.61548, 3 * pi / 4, 0));
+    my_scene.add_camera(vec3(0.2, 0, 0.2), vec3(0, 3 * pi / 4, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -60,10 +55,10 @@ GLsizei CurrentWidth = 960, CurrentHeight = 600;
 // Interface commands list
 const char *interface[] = {
     "Quit (ESC)",
-    "Rotation (r)",
     "Vertex Normals (v)",
     "Faces Normals (f)",
-    "Bounding Box (b)"
+    "Bounding Box (b)",
+    "Switch Camera (previous [, next ])"
 };
 
 // Draw list of commands
@@ -103,28 +98,19 @@ void keyboard(int key, int x, int y)
 {
     if (key == 033)
         exit(EXIT_SUCCESS);
-
-    if (key == 'v') {
+    if (key == 'v')
         my_mesh_1.toogle_vertex_normals();
-        glutPostRedisplay();
-    }
-    if (key == 'f') {
+    if (key == 'f')
         my_mesh_1.toogle_face_normals();
-        glutPostRedisplay();
-    }
-    if (key == 'b') {
+    if (key == 'b')
         my_mesh_1.toogle_bounding_box();
-        glutPostRedisplay();
-    }
-    if (key == 'r') {
-        theta[0] += 0.01;
+    if (key == '[')
+        my_scene.previous_camera();
+    if (key == ']')
+        my_scene.next_camera();
 
-        if (theta[0] >= 2 * pi)
-            theta[0] -= 2 * pi;
 
-        glutPostRedisplay();
-    }
-
+    glutPostRedisplay();
 }
 
 int main(int argc, char **argv)

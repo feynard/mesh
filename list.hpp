@@ -1,10 +1,12 @@
 // Generic, oredered, doubly linked list
 
+
 //
 //          root    1       2    ... tail
 //          next -> next -> next ... next -> null
 //  null <- prev <- prev <- prev ... prev
 //
+
 
 //
 // Loops:
@@ -201,19 +203,19 @@ public:
     int length() { return n_; }
 
     // Tail, O(1)
-    D tail() {
+    D* tail() {
         if (root_ == 0)
             return 0;
         else
-            return tail_ -> var;
+            return &(tail_ -> var);
     }
 
     // Head, O(1)
-    D root() {
+    D* root() {
         if (root_ == 0)
             return 0;
         else
-            return root_ -> var;
+            return &(root_ -> var);
     }
 
 
@@ -222,12 +224,12 @@ public:
     //
 
     // Indexing operator, O(N)
-    D& operator [] (int i) {
+    D* operator [] (int i) {
         Node *p = root_;
         for (int j = 0; j < i; j++)
             p = p -> next;
 
-        return p -> var;
+        return &(p -> var);
     }
 
     // Input, push, O(1)

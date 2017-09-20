@@ -117,21 +117,22 @@ public:
 
 };
 
+// Build local bounding box
 void Mesh::build_box(GLfloat box_limit[6]) {
     GLfloat x_min = box_limit[0] - 0.05, x_max = box_limit[1] + 0.05,
             y_min = box_limit[2] - 0.05, y_max = box_limit[3] + 0.05,
             z_min = box_limit[4] - 0.05, z_max = box_limit[5] + 0.05;
 
-    bounding_box_[0 ] = vec3(x_min, y_min, z_min);
-    bounding_box_[1 ] = vec3(x_max, y_min, z_min);
-    bounding_box_[2 ] = vec3(x_min, y_min, z_max);
-    bounding_box_[3 ] = vec3(x_max, y_min, z_max);
-    bounding_box_[4 ] = vec3(x_min, y_max, z_min);
-    bounding_box_[5 ] = vec3(x_max, y_max, z_min);
-    bounding_box_[6 ] = vec3(x_min, y_max, z_max);
-    bounding_box_[7 ] = vec3(x_max, y_max, z_max);
-    bounding_box_[8 ] = vec3(x_min, y_min, z_min);
-    bounding_box_[9 ] = vec3(x_min, y_max, z_min);
+    bounding_box_[0]  = vec3(x_min, y_min, z_min);
+    bounding_box_[1]  = vec3(x_max, y_min, z_min);
+    bounding_box_[2]  = vec3(x_min, y_min, z_max);
+    bounding_box_[3]  = vec3(x_max, y_min, z_max);
+    bounding_box_[4]  = vec3(x_min, y_max, z_min);
+    bounding_box_[5]  = vec3(x_max, y_max, z_min);
+    bounding_box_[6]  = vec3(x_min, y_max, z_max);
+    bounding_box_[7]  = vec3(x_max, y_max, z_max);
+    bounding_box_[8]  = vec3(x_min, y_min, z_min);
+    bounding_box_[9]  = vec3(x_min, y_max, z_min);
     bounding_box_[10] = vec3(x_min, y_min, z_max);
     bounding_box_[11] = vec3(x_min, y_max, z_max);
     bounding_box_[12] = vec3(x_max, y_min, z_min);
@@ -211,7 +212,7 @@ void Mesh::load(const char* obj_file) {
     // x_min, x_max, y_min, y_max, z_min, z_max
     GLfloat box_limit[6];
     for (int i = 0; i < 3; i++)
-        box_limit[2 * i + 1] = vertecis_list[0][i];
+        box_limit[2 * i + 1] = (*vertecis_list[0])[i];
 
     // Array of vertecis
     vertecis_number_ = vertecis_list.length();
