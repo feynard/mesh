@@ -27,7 +27,7 @@ void Init(int argc, char **argv)
     CamPos = glGetUniformLocation(program, "cam_position");
     CamRot = glGetUniformLocation(program, "cam_rotation");
 
-    my_scene.init(Color, CamPos, CamRot);
+    my_scene.set_colors(Color, CamPos, CamRot);
 
     if (argc > 1)
         my_mesh_1.load(argv[1]);
@@ -36,8 +36,8 @@ void Init(int argc, char **argv)
 
     my_mesh_1.color(Color);
     my_scene.add_object(&my_mesh_1);
-    my_scene.add_camera(vec3(0.2, 0, 0.2), vec3(0, 3 * pi / 4, 0));
-    my_scene.add_camera(vec3(0.2, 0.2, 0.2), vec3(0.61548, 3 * pi / 4, 0));
+//    my_scene.add_camera(vec3(0.3, 0, 0.3), vec3(0, 3 * pi / 4, 0));
+//    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(0.61548, 3 * pi / 4, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -59,7 +59,10 @@ const char *interface[] = {
     "Faces Normals (f)",
     "Bounding Box (b)",
     "Switch Camera (previous - [, next - ])",
-    "Add Camera (c)"
+    "Add Camera (c)",
+    "Camera Rotation (Alt + LMB)",
+    "Camera Zoom (Alt + RMB)",
+    "Camera Roll (Alt + LMB)"
 };
 
 // Draw list of commands
@@ -120,6 +123,7 @@ void keyboard(int key, int x, int y)
 
 bool left_button = false;
 bool right_button = false;
+bool middle_button = false;
 
 int x_prev, y_prev;             // Previous coordinates
 
@@ -151,9 +155,11 @@ void mouse_motion(int x, int y)
     y_prev = y;
 
     if (alt_key && left_button)
-        my_scene.update_camera_rotation(delta_x, delta_y);
+        my_scene.update_camera_spherical(delta_x, delta_y);
     else if (ctrl_key && left_button)
         my_scene.update_camera_roll(delta_x);
+    else if (alt_key && right_button)
+        my_scene.update_camera_zoom(delta_y);
 
     glutPostRedisplay();
 }
