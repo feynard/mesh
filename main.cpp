@@ -36,8 +36,8 @@ void Init(int argc, char **argv)
 
     my_mesh_1.color(Color);
     my_scene.add_object(&my_mesh_1);
-    my_scene.add_camera(vec3(0.2, 0.2, 0.2), vec3(0.61548, 3 * pi / 4, 0));
     my_scene.add_camera(vec3(0.2, 0, 0.2), vec3(0, 3 * pi / 4, 0));
+    my_scene.add_camera(vec3(0.2, 0.2, 0.2), vec3(0.61548, 3 * pi / 4, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -58,7 +58,8 @@ const char *interface[] = {
     "Vertex Normals (v)",
     "Faces Normals (f)",
     "Bounding Box (b)",
-    "Switch Camera (previous [, next ])"
+    "Switch Camera (previous - [, next - ])",
+    "Add Camera (c)"
 };
 
 // Draw list of commands
@@ -93,6 +94,8 @@ void reshape(GLsizei w, GLsizei h)
     glViewport((w - Width) / 2, (h - Height) / 2, Width, Height);
 }
 
+bool alt_key;
+bool ctrl_key;
 
 void keyboard(int key, int x, int y)
 {
@@ -108,7 +111,49 @@ void keyboard(int key, int x, int y)
         my_scene.previous_camera();
     if (key == ']')
         my_scene.next_camera();
+    if (key == 'c')
+        my_scene.add_camera();
 
+    glutPostRedisplay();
+}
+
+
+bool left_button = false;
+bool right_button = false;
+
+int x_prev, y_prev;             // Previous coordinates
+
+void mouse(int button, int state, int x, int y)
+{
+    glutGetModifiers() == GLUT_ACTIVE_ALT ? alt_key = true : alt_key = false;
+    glutGetModifiers() == GLUT_ACTIVE_CTRL ? ctrl_key = true : ctrl_key = false;
+
+    if (state == GLUT_DOWN) {
+        x_prev = x;
+        y_prev = y;
+
+        if (button == GLUT_LEFT_BUTTON)
+            left_button = true;
+        if (button == GLUT_RIGHT_BUTTON)
+            right_button = true;
+    } else {
+        left_button = false;
+        right_button = false;
+    }
+}
+
+void mouse_motion(int x, int y)
+{
+    int delta_x = x_prev - x;
+    int delta_y = y_prev - y;
+
+    x_prev = x;
+    y_prev = y;
+
+    if (alt_key && left_button)
+        my_scene.update_camera_rotation(delta_x, delta_y);
+    else if (ctrl_key && left_button)
+        my_scene.update_camera_roll(delta_x);
 
     glutPostRedisplay();
 }
@@ -123,6 +168,8 @@ int main(int argc, char **argv)
     glutDisplayFunc(display);
     glutSpecialFunc(keyboard);
     glutReshapeFunc(reshape);
+    glutMouseFunc(mouse);
+    glutMotionFunc(mouse_motion);
 
     Init(argc, argv);
 

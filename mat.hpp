@@ -111,3 +111,71 @@ mat2 Ref(const GLfloat theta)
         sin(2 * theta), -cos(2 * theta)
     );
 }
+
+class mat3 {
+
+    vec3 M[3];
+
+public:
+
+    mat3(
+        GLfloat a00, GLfloat a01, GLfloat a02,
+        GLfloat a10, GLfloat a11, GLfloat a12,
+        GLfloat a20, GLfloat a21, GLfloat a22) {
+
+        M[0].x = a00, M[0].y = a01, M[0].z = a02,
+        M[1].x = a10, M[1].y = a11, M[1].z = a12,
+        M[2].x = a20, M[2].y = a21, M[2].z = a22;
+
+        }
+
+    vec3& operator [] (int i) { return M[i]; }
+    const vec3& operator [] (int i) const { return M[i]; }
+
+
+    friend mat3 operator * (const mat3& A, const mat3& B) {
+        return mat3(
+            A[0][0] * B[0][0] + A[0][1] * B[1][0] + A[0][2] * B[2][0],
+            A[0][0] * B[0][1] + A[0][1] * B[1][1] + A[0][2] * B[2][1],
+            A[0][0] * B[0][2] + A[0][1] * B[1][2] + A[0][2] * B[2][2],
+
+            A[1][0] * B[0][0] + A[1][1] * B[1][0] + A[1][2] * B[2][0],
+            A[1][0] * B[0][1] + A[1][1] * B[1][1] + A[1][2] * B[2][1],
+            A[1][0] * B[0][2] + A[1][1] * B[1][2] + A[1][2] * B[2][2],
+
+            A[2][0] * B[0][0] + A[2][1] * B[1][0] + A[2][2] * B[2][0],
+            A[2][0] * B[0][1] + A[2][1] * B[1][1] + A[2][2] * B[2][1],
+            A[2][0] * B[0][2] + A[2][1] * B[1][2] + A[2][2] * B[2][2]
+        );
+    }
+
+    friend vec3 operator * (const mat3& A, const vec3& v)
+    { return vec3(dot(A[0], v), dot(A[1], v), dot(A[2], v)); }
+};
+
+mat3 Rx(const GLfloat theta)
+{
+    return mat3(
+        1.0,        0.0,           0,
+        0.0, cos(theta), -sin(theta),
+        0.0, sin(theta),  cos(theta)
+    );
+}
+
+mat3 Ry(const GLfloat theta)
+{
+    return mat3(
+         cos(theta), 0.0, sin(theta),
+                0.0, 1.0,        0.0,
+        -sin(theta), 0.0, cos(theta)
+    );
+}
+
+mat3 Rz(const GLfloat theta)
+{
+    return mat3(
+        cos(theta), -sin(theta), 0.0,
+        sin(theta),  cos(theta), 0.0,
+               0.0,         0.0, 1.0
+    );
+}
