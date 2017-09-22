@@ -170,6 +170,41 @@ public:
         }
     }
 
+    // Removes i-th element
+    void remove_by_index(unsigned int i) {
+        if (i >= n_)
+            return;
+
+        n_--;
+        Node *p = root_, *previous;
+
+        for (int j = 0; j < i; j++)
+            previous = p, p = p -> next;
+
+        if (p == root_ && p != tail_) {
+           root_ = root_ -> next;
+           delete root_ -> prev;
+           root_ -> prev = 0;
+           return;
+       } else if (p == tail_ && p != root_) {
+           tail_ = p -> prev;
+           p -> prev -> next = 0;
+           delete p;
+           return;
+       } else if (p == tail_ && p == root_) {
+           delete root_;
+           root_ = 0;
+           tail_ = 0;
+           return;
+       }
+
+
+        p -> prev -> next = p -> next;
+        p -> next -> prev = p -> prev;
+        delete p;
+    }
+
+
     // Check if the list contains an element, O(N)
     bool contains(const D& x) {
         Node *p = root_;

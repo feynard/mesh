@@ -27,7 +27,7 @@ void Init(int argc, char **argv)
     CamPos = glGetUniformLocation(program, "cam_position");
     CamRot = glGetUniformLocation(program, "cam_rotation");
 
-    my_scene.set_colors(Color, CamPos, CamRot);
+    my_scene.init(Color, CamPos, CamRot);
 
     if (argc > 1)
         my_mesh_1.load(argv[1]);
@@ -62,7 +62,8 @@ const char *interface[] = {
     "Add Camera (c)",
     "Camera Rotation (Alt + LMB)",
     "Camera Zoom (Alt + RMB)",
-    "Camera Roll (Alt + LMB)"
+    "Camera Roll (Ctrl + LMB)",
+    "Delete Camera (d)"
 };
 
 // Draw list of commands
@@ -82,11 +83,8 @@ void DrawInterface(GLuint color_location)
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     my_scene.draw();
-
     DrawInterface(Color);
-
     glutSwapBuffers();
 }
 
@@ -116,6 +114,8 @@ void keyboard(int key, int x, int y)
         my_scene.next_camera();
     if (key == 'c')
         my_scene.add_camera();
+    if (key == 'd')
+        my_scene.delete_active_camera();
 
     glutPostRedisplay();
 }
@@ -140,9 +140,12 @@ void mouse(int button, int state, int x, int y)
             left_button = true;
         if (button == GLUT_RIGHT_BUTTON)
             right_button = true;
+        if (button == GLUT_MIDDLE_BUTTON)
+            middle_button = true;
     } else {
         left_button = false;
         right_button = false;
+        middle_button = false;
     }
 }
 
@@ -154,12 +157,18 @@ void mouse_motion(int x, int y)
     x_prev = x;
     y_prev = y;
 
+    // Spherical rotation
     if (alt_key && left_button)
         my_scene.update_camera_spherical(delta_x, delta_y);
+    // Camera roll
     else if (ctrl_key && left_button)
         my_scene.update_camera_roll(delta_x);
+    // Camera zoom (move along camera's main axis)
     else if (alt_key && right_button)
-        my_scene.update_camera_zoom(delta_y);
+        my_scene.update_camera_zoom(-delta_x - delta_y);
+    // Camera move (scan move) in the main plane
+    else if (alt_key && middle_button)
+        my_scene.update_camera_move(delta_x, delta_y);
 
     glutPostRedisplay();
 }
