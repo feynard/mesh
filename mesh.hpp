@@ -10,8 +10,9 @@ class Mesh {
 
     struct Triplet {
         unsigned int a, b, c;
-        Triplet(unsigned int i = 0, unsigned int j = 0, unsigned int k = 0):
-            a(i), b(j), c(k) {}
+        Triplet(unsigned int i = 0, unsigned int j = 0, unsigned int k = 0) {
+            a = i, b = j, c = k;
+        }
     };
 
     // Geometric data
@@ -32,48 +33,16 @@ class Mesh {
     bool vn_draw_;                  // Draw vertex normals
     bool fn_draw_;                  // Draw faces normals (need to calculate)
 
-    GLuint buf;                     // Main vertex buffer object
+    GLuint buf_;                     // Main vertex buffer object
 
     // Build bounding box
     void build_box(GLfloat box_limit[6]);
 
 public:
-
-    Mesh() {
-        vertecis_ = 0;
-        faces_ = 0;
-        normals_ = 0;
-        vertex_normals_ = 0;
-        faces_normals_ = 0;
-        vertecis_number_ = 0;
-        faces_number_ = 0;
-        normals_number_ = 0;
-        faces_mid_indices_ = 0;
-        center_ = vec3(0, 0, 0);
-        face_color_ = vec4(220 / 255.0, 50 / 255.0, 47 / 255.0, 1);
-        vertex_normal_color_ = vec4(181 / 255.0, 137 / 255.0, 0 / 255.0, 1);
-        face_normal_color_ = vec4(211 / 255.0, 54 / 255.0, 130 / 255.0, 1);
-        box_color_ = vec4(88 / 255.0, 110 / 255.0, 117 / 255.0, 1);
-        vn_draw_ = false;
-        fn_draw_ = false;
-        box_draw_ = false;
-        buf = 0;
-    }
-
-    Mesh(const char* obj_file)
-    { load(obj_file); }
-
-    ~Mesh() {
-        delete[] vertecis_;
-        delete[] normals_;
-        delete[] faces_;
-        delete[] vertex_normals_;
-        delete[] faces_normals_;
-        delete[] faces_mid_indices_;
-
-        if (buf != 0)
-            glDeleteBuffers(1, &buf);
-    }
+    Mesh();
+    Mesh(const Mesh& mesh);
+    Mesh(const char* obj_file);
+    ~Mesh();
 
     // Reading .obj file, assuming that vertices go before normals and faces
     void load(const char* obj_file);
@@ -82,7 +51,8 @@ public:
     void draw();
 
     // Set color attribute in fragment shader
-    void color(GLuint color_location) { color_loc_ = color_location; }
+    void set_color_attribute(GLuint color_location)
+    { color_loc_ = color_location; }
 
     // Toogle display
     void toogle_vertex_normals()
@@ -94,9 +64,7 @@ public:
     void toogle_bounding_box()
     { box_draw_ ? box_draw_ = false : box_draw_ = true; }
 
-    //
     // Getters
-    //
     vec3* vertecis()
     { return vertecis_; }
 
@@ -116,6 +84,45 @@ public:
     { return normals_number_; }
 
 };
+
+// Constructors
+Mesh::Mesh() {
+    vertecis_ = 0;
+    faces_ = 0;
+    normals_ = 0;
+    vertex_normals_ = 0;
+    faces_normals_ = 0;
+    vertecis_number_ = 0;
+    faces_number_ = 0;
+    normals_number_ = 0;
+    faces_mid_indices_ = 0;
+    center_ = vec3(0, 0, 0);
+    face_color_ = vec4(220 / 255.0, 50 / 255.0, 47 / 255.0, 1);
+    vertex_normal_color_ = vec4(181 / 255.0, 137 / 255.0, 0 / 255.0, 1);
+    face_normal_color_ = vec4(211 / 255.0, 54 / 255.0, 130 / 255.0, 1);
+    box_color_ = vec4(88 / 255.0, 110 / 255.0, 117 / 255.0, 1);
+    vn_draw_ = false;
+    fn_draw_ = false;
+    box_draw_ = false;
+    buf_ = 0;
+}
+
+Mesh::Mesh(const char* obj_file)
+{
+    load(obj_file);
+}
+
+Mesh::~Mesh() {
+    delete[] vertecis_;
+    delete[] normals_;
+    delete[] faces_;
+    delete[] vertex_normals_;
+    delete[] faces_normals_;
+    delete[] faces_mid_indices_;
+
+    if (buf_ != 0)
+        glDeleteBuffers(1, &buf_);
+}
 
 // Build local bounding box
 void Mesh::build_box(GLfloat box_limit[6]) {
@@ -160,8 +167,8 @@ void Mesh::load(const char* obj_file) {
         delete[] faces_normals_;
         delete[] faces_mid_indices_;
 
-        if (buf != 0)
-            glDeleteBuffers(1, &buf);
+        if (buf_ != 0)
+            glDeleteBuffers(1, &buf_);
     }
 
     std::ifstream file(obj_file);
@@ -297,8 +304,8 @@ void Mesh::load(const char* obj_file) {
     }
 
     // Create buffer
-    glGenBuffers(1, &buf);
-    glBindBuffer(GL_ARRAY_BUFFER, buf);
+    glGenBuffers(1, &buf_);
+    glBindBuffer(GL_ARRAY_BUFFER, buf_);
 
     // Put vertex normals in buffer if they exist
     if (normals_number_ != 0) {
@@ -328,7 +335,7 @@ void Mesh::load(const char* obj_file) {
 }
 
 void Mesh::draw() {
-    glBindBuffer(GL_ARRAY_BUFFER, buf);
+    glBindBuffer(GL_ARRAY_BUFFER, buf_);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     // Drawing model

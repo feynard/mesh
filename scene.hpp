@@ -37,6 +37,9 @@ class Scene {
     GLfloat rot_s;
     GLfloat zoom_s;
 
+    // Vertex array object (VAO)
+    GLuint vao_;
+
 public:
 
     // It's important to not to do anything with GL here
@@ -60,11 +63,15 @@ public:
             glDeleteBuffers(1, &cam_geo_.get_iterator());
 
         glDeleteBuffers(1, &grid_buf_);
+        glDeleteVertexArrays(1, &vao_);
     }
 
     // Default initiliser, need to prevent segmentation fault errors (GL
     // functions can't be called before GLUT is initialised)
     void init(GLuint colour, GLuint cam_position, GLuint cam_rotation) {
+        glGenVertexArrays(1, &vao_);
+        glBindVertexArray(vao_);
+
         glGenBuffers(1, &grid_buf_);
         glBindBuffer(GL_ARRAY_BUFFER, grid_buf_);
         glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(vec3), grid_, GL_STATIC_DRAW);

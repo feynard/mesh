@@ -165,9 +165,9 @@ mat3 Rx(const GLfloat theta)
 mat3 Ry(const GLfloat theta)
 {
     return mat3(
-         cos(theta), 0.0, -sin(theta),
-                0.0, 1.0,        0.0,
-         sin(theta), 0.0, cos(theta)
+        cos(theta), 0.0, -sin(theta),
+               0.0, 1.0,         0.0,
+        sin(theta), 0.0,  cos(theta)
     );
 }
 

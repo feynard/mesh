@@ -4,26 +4,23 @@
 
 using namespace std;
 
-GLuint CamPos, CamRot, Color;
-
 vec4 color(220 / 255.0, 50 / 255.0, 47 / 255.0, 1.0);
 
+// Shader attribute locations
+GLuint CamPos, CamRot, Color, loc;
+
 Mesh my_mesh_1, my_mesh_2;
-Scene my_scene;                 // Main scene
-GLuint vao;                     // Main vertex array
+Scene my_scene;
 
 void Init(int argc, char **argv)
 {
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
     // Load shaders and use the resulting shader program
     GLuint program = ShaderInit("shader.vert", "shader.frag");
     glUseProgram(program);
 
-    // Initialize the vertex position attribute from the vertex shader
-    GLuint loc = glGetAttribLocation(program, "position");
-    Color = glGetUniformLocation(program, "edge_color");
+    // Set shader attributes
+    loc    = glGetAttribLocation(program, "position");
+    Color  = glGetUniformLocation(program, "edge_color");
     CamPos = glGetUniformLocation(program, "cam_position");
     CamRot = glGetUniformLocation(program, "cam_rotation");
 
@@ -34,10 +31,10 @@ void Init(int argc, char **argv)
     else
         my_mesh_1.load("obj_files/teapot.obj");
 
-    my_mesh_1.color(Color);
+    my_mesh_1.set_color_attribute(Color);
+
     my_scene.add_object(&my_mesh_1);
-//    my_scene.add_camera(vec3(0.3, 0, 0.3), vec3(0, 3 * pi / 4, 0));
-//    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(0.61548, 3 * pi / 4, 0));
+    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(0.61548, 3 * pi / 4, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -58,9 +55,10 @@ const char *interface[] = {
     "Vertex Normals (v)",
     "Faces Normals (f)",
     "Bounding Box (b)",
-    "Switch Camera (previous - [, next - ])",
+    "Switch Between Cameras ([,])",
     "Add Camera (c)",
     "Camera Rotation (Alt + LMB)",
+    "Camera Move (Alt + MMB)",
     "Camera Zoom (Alt + RMB)",
     "Camera Roll (Ctrl + LMB)",
     "Delete Camera (d)"
@@ -125,7 +123,7 @@ bool left_button = false;
 bool right_button = false;
 bool middle_button = false;
 
-int x_prev, y_prev;             // Previous coordinates
+int x_prev, y_prev;             // Previous pointer's coordinates
 
 void mouse(int button, int state, int x, int y)
 {

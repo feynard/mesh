@@ -5,6 +5,7 @@
     #include <GLUT/GLUT.h>
     #define glGenVertexArrays glGenVertexArraysAPPLE
     #define glBindVertexArray glBindVertexArrayAPPLE
+    #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
 #endif
 
 // Math constants

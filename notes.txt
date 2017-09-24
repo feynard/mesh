@@ -1,5 +1,5 @@
 To think about (have to):
-    * Transformation controls, move, scale, rotate
+    * Local transformation controls, move, scale, rotate
 
     * Child class of Mesh with "hardcoded" simple geometry. I still don't
     understand what does it mean?
