@@ -22,6 +22,8 @@
 // }
 //
 
+#ifndef LIST_HPP
+#define LIST_HPP
 
 template <class D> class List {
 
@@ -281,3 +283,5 @@ public:
         return out;
     }
 };
+
+#endif

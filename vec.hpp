@@ -1,6 +1,16 @@
+#ifndef VEC_HPP
+#define VEC_HPP
+
+#include <OpenGL/OpenGL.h>
+
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+
 // Zero tolerance, that is any number less than this considered to be 0
 const GLfloat zero_tolerance = 1e-7;
-
 
 //
 // Two-dimensional real vector
@@ -9,87 +19,54 @@ struct vec2 {
     GLfloat x;
     GLfloat y;
 
-    // Constructor
-    vec2(GLfloat a = 0, GLfloat b = 0) {
-        x = a, y = b;
-        if (std::abs(a) < zero_tolerance) x = 0;
-        if (std::abs(b) < zero_tolerance) y = 0;
-    }
+    // Constructors
+    vec2();
+    vec2(GLfloat s) {x = s, y = s;}
+    vec2(const GLfloat a, const GLfloat b);
+    vec2(const vec2& v);
 
-    // Vector normalization
-    void normalize() {
-        GLfloat l = sqrt(x*x + y*y);
-        x /= l;
-        y /= l;
-    }
-
-    void normalize(GLfloat r) {
-        GLfloat l = sqrt(x*x + y*y);
-        x = x / l * r;
-        y = y / l * r;
-    }
+    // Vector normalization to a given value
+    void normalize(const GLfloat r);
 
     //
     // Operator overloading
     //
 
     // Inverse
-    vec2 operator - () const
-    { return vec2(-x, -y); }
+    vec2 operator - () const;
 
     // Vector sum and difference
-    friend vec2 operator + (const vec2& u, const vec2& v)
-    { return vec2(u.x + v.x, u.y + v.y); }
-
-    friend vec2 operator - (const vec2& u, const vec2& v)
-    { return vec2(u.x - v.x, u.y - v.y); }
+    friend vec2 operator + (const vec2& u, const vec2& v);
+    friend vec2 operator - (const vec2& u, const vec2& v);
 
     // Multiplication by a scalar
-    vec2 operator * (const GLfloat c) const { return vec2(c*x, c*y); }
-    vec2 operator / (const GLfloat c) const { return vec2(x/c, y/c); }
-    friend vec2 operator * (const GLfloat c, const vec2& v) { return v * c; }
+    vec2 operator * (const GLfloat c) const;
+    vec2 operator / (const GLfloat c) const;
+    friend vec2 operator * (const GLfloat c, const vec2& v);
 
     // Compound assignment
-    vec2& operator += (const vec2& v)
-    { *this = vec2(x + v.x, y + v.y); return *this; }
-
-    vec2& operator -= (const vec2& v)
-    { *this = vec2(x - v.x, y - v.x); return *this; }
-
-    vec2& operator *= (const GLfloat c)
-    { *this = vec2(c*x, c*y); return *this; }
-
-    vec2& operator /= (const GLfloat c)
-    { *this = vec2(x/c, y/c); return *this; }
+    vec2& operator += (const vec2& v);
+    vec2& operator -= (const vec2& v);
+    vec2& operator *= (const GLfloat c);
+    vec2& operator /= (const GLfloat c);
 
     // Indexing operators
-    GLfloat& operator [] (int i) { return *(&x + i); }
-    const GLfloat operator [] (int i) const { return *(&x + i); }
+    GLfloat& operator [] (const unsigned int i);
+    const GLfloat operator [] (const unsigned int i) const;
 
-    // Extraction operator
-    friend std::ostream& operator << (std::ostream& os, const vec2& v)
-    { return os << v.x << ' ' << v.y; }
-
-    // Input
-    friend std::istream& operator >> (std::istream& is, vec2& v)
-    { return is >> v.x >> v.y; }
-
+    // Input and output
+    friend ostream& operator << (ostream& os, const vec2& v);
+    friend istream& operator >> (istream& is, vec2& v);
 };
 
 // Standard inner product
-GLfloat dot(const vec2& u, const vec2& v) {
-    GLfloat val = u.x * v.x + u.y * v.y;
-
-    if (std::abs(val) < zero_tolerance)
-        return 0;
-    else
-        return val;
-}
+GLfloat dot(const vec2& u, const vec2& v);
 
 // Length of a vector
-GLfloat length(const vec2& v) {
-    return sqrt(v.x * v.x + v.y * v.y);
-}
+GLfloat length(const vec2& v);
+
+// Normalized vector
+vec2 normalize(const vec2& v);
 
 
 //
@@ -100,104 +77,65 @@ struct vec3 {
     GLfloat y;
     GLfloat z;
 
-    // Constructor
-    vec3(GLfloat a = 0, GLfloat b = 0, GLfloat c = 0) {
-        x = a, y = b, z = c;
-        if (std::abs(a) < zero_tolerance) x = 0;
-        if (std::abs(b) < zero_tolerance) y = 0;
-        if (std::abs(c) < zero_tolerance) z = 0;
-    }
+    // Constructors
+    vec3();
+    vec3(GLfloat s) {x = s, y = s, z = s; }
+    vec3(const GLfloat a, const GLfloat b, const GLfloat c);
+    vec3(const vec3& v);
+    vec3(const vec2& v);
+    vec3(const vec2& v, const GLfloat s);
+
 
     // Vector normalization
-    void normalize() {
-        GLfloat l = sqrt(x*x + y*y + z*z);
-        x /= l;
-        y /= l;
-        z /= l;
-    }
-
-    void normalize(GLfloat r) {
-        GLfloat l = sqrt(x*x + y*y + z*z);
-        x = x / l * r;
-        y = y / l * r;
-        z = z / l * r;
-    }
+    void normalize();
+    void normalize(const GLfloat r);
 
     //
     // Operator overloading
     //
 
     // Inverse
-    vec3 operator - () const
-    { return vec3(-x, -y, -z); }
+    vec3 operator - () const;
 
     // Vector sum and difference
-    friend vec3 operator + (const vec3& u, const vec3& v)
-    { return vec3(u.x + v.x, u.y + v.y, u.z + v.z); }
-
-    friend vec3 operator - (const vec3& u, const vec3& v)
-    { return vec3(u.x - v.x, u.y - v.y, u.z - v.z); }
+    friend vec3 operator + (const vec3& u, const vec3& v);
+    friend vec3 operator - (const vec3& u, const vec3& v);
 
     // Multiplication by a scalar
-    vec3 operator * (const GLfloat c) const { return vec3(c*x, c*y, c*z); }
-    vec3 operator / (const GLfloat c) const { return vec3(x/c, y/c, z/c); }
-    friend vec3 operator * (const GLfloat c, const vec3& v) { return v * c; }
+    vec3 operator * (const GLfloat c) const;
+    vec3 operator / (const GLfloat c) const;
+    friend vec3 operator * (const GLfloat c, const vec3& v);
 
     // Compound assignment
-    vec3& operator += (const vec3& v)
-    { *this = vec3(x + v.x, y + v.y, z + v.z); return *this; }
-
-    vec3& operator -= (const vec3& v)
-    { *this = vec3(x - v.x, y - v.y, z - v.z); return *this; }
-
-    vec3& operator *= (const GLfloat c)
-    { *this = vec3(x*c, y*c, z*c); return *this; }
-
-    vec3& operator /= (const GLfloat c)
-    { *this = vec3(x/c, y/c, z/c); return *this; }
+    vec3& operator += (const vec3& v);
+    vec3& operator -= (const vec3& v);
+    vec3& operator *= (const GLfloat c);
+    vec3& operator /= (const GLfloat c);
 
     // Indexing operators
-    GLfloat& operator [] (int i) { return *(&x + i); }
-    const GLfloat operator [] (int i) const { return *(&x + i); }
+    GLfloat& operator [] (const unsigned int i);
+    const GLfloat operator [] (const unsigned int i) const;
 
     // Cross product
-    friend vec3 operator * (const vec3& u, const vec3& v)
-    {
-        return vec3(
-            u.y * v.z - u.z * v.y,
-            u.z * v.x - u.x * v.z,
-            u.x * v.y - u.y * v.x
-        );
-    }
+    friend vec3 operator * (const vec3& u, const vec3& v);
 
-    // Extraction operator
-    friend std::ostream& operator << (std::ostream& os, const vec3& v)
-    { return os << v.x << ' ' << v.y << ' ' << v.z; }
-
-    // Input
-    friend std::istream& operator >> (std::istream& is, vec3& v)
-    { return is >> v.x >> v.y >> v.z; }
+    // Input and output
+    friend ostream& operator << (ostream& os, const vec3& v);
+    friend istream& operator >> (istream& is, vec3& v);
 };
 
 // Standard inner product
-GLfloat dot(const vec3& u, const vec3& v) {
-    GLfloat val = u.x * v.x + u.y * v.y + u.z * v.z;
-
-    if (std::abs(val) < zero_tolerance)
-        return 0;
-    else
-        return val;
-}
+GLfloat dot(const vec3& u, const vec3& v);
 
 // Length of a vector
-GLfloat length(const vec3& v) {
-    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
+GLfloat length(const vec3& v);
 
+// Normalized vector
+vec3 normalize(const vec3& v);
 
 
 //
-// Three-dimensional real vector
+// Four-dimensional vector for homogeneous coordinates
 //
 struct vec4 {
     GLfloat x;
@@ -205,78 +143,24 @@ struct vec4 {
     GLfloat z;
     GLfloat w;
 
-    // Constructor
-    vec4(GLfloat a = 0, GLfloat b = 0, GLfloat c = 0, GLfloat d = 0) {
-        x = a, y = b, z = c, w = d;
-        if (std::abs(a) < zero_tolerance) x = 0;
-        if (std::abs(b) < zero_tolerance) y = 0;
-        if (std::abs(c) < zero_tolerance) z = 0;
-        if (std::abs(c) < zero_tolerance) w = 0;
-    }
-
-    vec4(vec3 v, GLfloat t) {
-        x = v.x, y = v.y, z = v.z, w = t;
-    }
-
-    // Vector normalization
-    void normalize() {
-        GLfloat l = sqrt(x*x + y*y + z*z + w*w);
-        x /= l;
-        y /= l;
-        z /= l;
-        w /= l;
-    }
-
-    void normalize(GLfloat r) {
-        GLfloat l = sqrt(x*x + y*y + z*z + w*w);
-        x = x / l * r;
-        y = y / l * r;
-        z = z / l * r;
-        w = w / l * r;
-    }
+    // Constructors
+    vec4();
+    vec4(const GLfloat a, const GLfloat b, const GLfloat c, const GLfloat d);
+    vec4(const vec4& v);
+    vec4(const vec3& v);
+    vec4(const vec3& v, const GLfloat s);
 
     //
     // Operator overloading
     //
 
-    // Inverse
-    vec4 operator - () const
-    { return vec4(-x, -y, -z, -w); }
-
-    // Vector sum and difference
-    friend vec4 operator + (const vec4& u, const vec4& v)
-    { return vec4(u.x + v.x, u.y + v.y, u.z + v.z, u.w + v.w); }
-
-    friend vec4 operator - (const vec4& u, const vec4& v)
-    { return vec4(u.x - v.x, u.y - v.y, u.z - v.z, u.w - v.w); }
-
-    // Multiplication by a scalar
-    vec4 operator * (const GLfloat c) const { return vec4(c*x, c*y, c*z, c*w); }
-    vec4 operator / (const GLfloat c) const { return vec4(x/c, y/c, z/c, w/c); }
-    friend vec4 operator * (const GLfloat c, const vec4& v) { return v * c; }
-
-    // Compound assignment
-    vec4& operator += (const vec4& v)
-    { *this = vec4(x + v.x, y + v.y, z + v.z, w + v.w); return *this; }
-
-    vec4& operator -= (const vec4& v)
-    { *this = vec4(x - v.x, y - v.y, z - v.z, w - v.w); return *this; }
-
-    vec4& operator *= (const GLfloat c)
-    { *this = vec4(x*c, y*c, z*c, w*c); return *this; }
-
-    vec4& operator /= (const GLfloat c)
-    { *this = vec4(x/c, y/c, z/c, w/c); return *this; }
-
     // Indexing operators
-    GLfloat& operator [] (int i) { return *(&x + i); }
-    const GLfloat operator [] (int i) const { return *(&x + i); }
+    GLfloat& operator [] (const unsigned int i);
+    const GLfloat operator [] (const unsigned int i) const;
 
     // Extraction operator
-    friend std::ostream& operator << (std::ostream& os, const vec4& v)
-    { return os << v.x << ' ' << v.y << ' ' << v.z << ' ' << v.w; }
-
-    // Input
-    friend std::istream& operator >> (std::istream& is, vec4& v)
-    { return is >> v.x >> v.y >> v.z >> v.w; }
+    friend ostream& operator << (ostream& os, const vec4& v);
+    friend istream& operator >> (istream& is, vec4& v);
 };
+
+#endif

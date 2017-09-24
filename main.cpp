@@ -1,5 +1,5 @@
-#include "graphics_support.hpp"
-#include "mat.hpp"
+#include "graphics.hpp"
+#include "mesh.hpp"
 #include "scene.hpp"
 
 using namespace std;

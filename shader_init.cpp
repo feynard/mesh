@@ -1,4 +1,4 @@
-#include "graphics_support.hpp"
+#include "graphics.hpp"
 
 // Read file into a string
 static char* ReadFile(const char* file)

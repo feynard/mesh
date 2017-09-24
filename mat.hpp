@@ -1,11 +1,18 @@
+#ifndef MAT_HPP
+#define MAT_HPP
+
+
+#include <OpenGL/OpenGL.h>
+
 #include "vec.hpp"
 
+
 //
-// Two by two real matrix
+// Two by two real valued matrix
 //
 class mat2 {
 
-    vec2 M[2];
+    vec2 M_[2];
 
 public:
 
@@ -13,169 +20,138 @@ public:
     // Constructors
     //
 
+    mat2();
+
     // Two row vectors
-    mat2(const vec2& u, const vec2& v)
-    { M[0] = u; M[1] = v; }
+    mat2(const vec2& u, const vec2& v);
 
     // Diagonal matrix
-    mat2(const GLfloat c = 1)
-    { M[0].x = c;  M[1].y = c; }
+    mat2(const GLfloat c);
 
     // Explicit constructor
-    mat2(GLfloat a00, GLfloat a01, GLfloat a10, GLfloat a11)
-    { M[0].x = a00; M[0].y = a01; M[1].x = a10; M[1].y = a11; }
-
+    mat2(GLfloat a00, GLfloat a01, GLfloat a10, GLfloat a11);
 
     //
     // Operator overloading
     //
 
     // Indexing operator
-    vec2& operator [] (int i) { return M[i]; }
-    const vec2& operator [] (int i) const { return M[i]; }
+    vec2& operator [] (const unsigned int i);
+    const vec2& operator [] (const unsigned int i) const;
 
     // Sum inverse
-    mat2 operator - () const
-    { return mat2(-M[0], -M[1]); }
+    mat2 operator - () const;
 
     // Sum and difference
-    friend mat2 operator + (const mat2& A, const mat2& B)
-    { return mat2(A[0] + B[0], A[1] + B[1]); }
-
-    friend mat2 operator - (const mat2& A, const mat2& B)
-    { return mat2(A[0] - B[0], A[1] - B[1]); }
+    friend mat2 operator + (const mat2& A, const mat2& B);
+    friend mat2 operator - (const mat2& A, const mat2& B);
 
     // Multiplication by a scalar
-    mat2 operator * (const GLfloat c) const { return mat2(c*M[0], c*M[1]); }
-    mat2 operator / (const GLfloat c) const { return mat2(M[0]/c, M[1]/c); }
-    friend mat2 operator * (const GLfloat c, const mat2& A) { return A * c; }
+    mat2 operator * (const GLfloat s) const;
+    mat2 operator / (const GLfloat s) const;
+    friend mat2 operator * (const GLfloat c, const mat2& A);
 
     // Matrix multiplication
-    friend mat2 operator * (const mat2& A, const mat2& B) {
-        return mat2(
-            A[0][0] * B[0][0] + A[0][1] * B[1][0],
-            A[0][0] * B[0][1] + A[0][1] * B[1][1],
-            A[1][0] * B[0][0] + A[1][1] * B[1][0],
-            A[1][0] * B[0][1] + A[1][1] * B[1][1]
-        );
-    }
+    friend mat2 operator * (const mat2& A, const mat2& B);
 
     // Compound assignment
-    mat2& operator += (const mat2& A)
-    { M[0] += A[0]; M[1] += A[1]; return *this; }
+    mat2& operator += (const mat2& A);
+    mat2& operator -= (const mat2& A);
+    mat2& operator *= (const GLfloat s);
+    mat2& operator /= (const GLfloat s);
+    mat2& operator *= (const mat2& A);
 
-    mat2& operator -= (const mat2& A)
-    { M[0] -= A[0]; M[1] -= A[1]; return *this; }
+    // Matrix-vector multiplication
+    friend vec2 operator * (const mat2& A, const vec2& v);
 
-    mat2& operator *= (const GLfloat c)
-    { M[0] *= c; M[1] *= c; return *this; }
-
-    mat2& operator /= (const GLfloat c)
-    { M[0] /= c; M[1] /= c; return *this; }
-
-    mat2& operator *= (const mat2& A)
-    { *this = (*this) * A; return *this; }
-
-    // Matrix-vector operations
-    //
-    friend vec2 operator * (const mat2& A, const vec2& v)
-    { return vec2(dot(A[0], v), dot(A[1], v)); }
+    // Output
+    friend ostream& operator << (ostream& os, const mat2& A);
 };
 
-// Transpose
-mat2 transpose(const mat2& A)
-{
-    return mat2(A[0][0], A[1][0], A[0][1], A[1][1]);
-}
+// Matrix operations
 
-// Determinant
-GLfloat det(const mat2& A)
-{
-    return A[0][0] * A[1][1] - A[1][0] * A[0][1];
-}
+mat2 transpose(const mat2& A);
+GLfloat det(const mat2& A);
 
-// Rotation by an angle theta
-mat2 Rot(const GLfloat theta)
-{
-    return mat2(
-        cos(theta), -sin(theta),
-        sin(theta),  cos(theta)
-    );
-}
+// Anticlockwise rotation about the origin
+mat2 Rot(const GLfloat theta);
 
-// Reflection about the axis that forms angle theta with x-axis
-mat2 Ref(const GLfloat theta)
-{
-    return mat2(
-        cos(2 * theta),  sin(2 * theta),
-        sin(2 * theta), -cos(2 * theta)
-    );
-}
+// Reflection with respect to the axis that makes
+// angle theta with positive x direction
+mat2 Ref(const GLfloat theta);
+
+//
+// Three by three real valued matrix
+//
 
 class mat3 {
 
-    vec3 M[3];
+    vec3 M_[3];
 
 public:
 
+    //
+    // Constructors
+    //
+
+    mat3();
+
+    // Three row vectors
+    mat3(const vec3& u, const vec3& v, const vec3& w);
+
+    // Diagonal matrix
+    mat3(const GLfloat c);
+
+    // Explicit constructor
     mat3(
-        GLfloat a00, GLfloat a01, GLfloat a02,
-        GLfloat a10, GLfloat a11, GLfloat a12,
-        GLfloat a20, GLfloat a21, GLfloat a22) {
+        const GLfloat a00, const GLfloat a01, const GLfloat a02,
+        const GLfloat a10, const GLfloat a11, const GLfloat a12,
+        const GLfloat a20, const GLfloat a21, const GLfloat a22);
 
-        M[0].x = a00, M[0].y = a01, M[0].z = a02,
-        M[1].x = a10, M[1].y = a11, M[1].z = a12,
-        M[2].x = a20, M[2].y = a21, M[2].z = a22;
+    //
+    // Operator overloading
+    //
 
-        }
+    // Indexing operator
+    vec3& operator [] (const unsigned int i);
+    const vec3& operator [] (const unsigned int i) const;
 
-    vec3& operator [] (int i) { return M[i]; }
-    const vec3& operator [] (int i) const { return M[i]; }
+    // Sum inverse
+    mat3 operator - () const;
 
+    // Sum and difference
+    friend mat3 operator + (const mat3& A, const mat3& B);
+    friend mat3 operator - (const mat3& A, const mat3& B);
 
-    friend mat3 operator * (const mat3& A, const mat3& B) {
-        return mat3(
-            A[0][0] * B[0][0] + A[0][1] * B[1][0] + A[0][2] * B[2][0],
-            A[0][0] * B[0][1] + A[0][1] * B[1][1] + A[0][2] * B[2][1],
-            A[0][0] * B[0][2] + A[0][1] * B[1][2] + A[0][2] * B[2][2],
+    // Multiplication by a scalar
+    mat3 operator * (const GLfloat s) const;
+    mat3 operator / (const GLfloat s) const;
+    friend mat3 operator * (const GLfloat s, const mat3& A);
 
-            A[1][0] * B[0][0] + A[1][1] * B[1][0] + A[1][2] * B[2][0],
-            A[1][0] * B[0][1] + A[1][1] * B[1][1] + A[1][2] * B[2][1],
-            A[1][0] * B[0][2] + A[1][1] * B[1][2] + A[1][2] * B[2][2],
+    // Matrix multiplication
+    friend mat3 operator * (const mat3& A, const mat3& B);
 
-            A[2][0] * B[0][0] + A[2][1] * B[1][0] + A[2][2] * B[2][0],
-            A[2][0] * B[0][1] + A[2][1] * B[1][1] + A[2][2] * B[2][1],
-            A[2][0] * B[0][2] + A[2][1] * B[1][2] + A[2][2] * B[2][2]
-        );
-    }
+    // Compound assignments
+    mat3& operator += (const mat3& A);
+    mat3& operator -= (const mat3& A);
+    mat3& operator *= (const GLfloat s);
+    mat3& operator /= (const GLfloat s);
+    mat3& operator *= (const mat3& A);
 
-    friend vec3 operator * (const mat3& A, const vec3& v)
-    { return vec3(dot(A[0], v), dot(A[1], v), dot(A[2], v)); }
+    // Matrix-vector multiplication
+    friend vec3 operator * (const mat3& A, const vec3& v);
+
+    // Output
+    friend ostream& operator << (ostream& os, const mat3& A);
 };
 
-mat3 Rx(const GLfloat theta)
-{
-    return mat3(
-        1.0,        0.0,           0,
-        0.0, cos(theta), -sin(theta),
-        0.0, sin(theta),  cos(theta)
-    );
-}
+// Matrix operations
+mat3 transpose(const mat3& A);
+GLfloat det(const mat3& A);
 
-mat3 Ry(const GLfloat theta)
-{
-    return mat3(
-        cos(theta), 0.0, -sin(theta),
-               0.0, 1.0,         0.0,
-        sin(theta), 0.0,  cos(theta)
-    );
-}
+// Rotations
+mat3 Rx(const GLfloat theta);
+mat3 Ry(const GLfloat theta);
+mat3 Rz(const GLfloat theta);
 
-mat3 Rz(const GLfloat theta)
-{
-    return mat3(
-        cos(theta), -sin(theta), 0.0,
-        sin(theta),  cos(theta), 0.0,
-               0.0,         0.0, 1.0
-    );
-}
+#endif
