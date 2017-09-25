@@ -2,7 +2,6 @@
 #define SCENE_HPP
 
 #include "graphics.hpp"
-
 #include "mesh.hpp"
 #include "list.hpp"
 

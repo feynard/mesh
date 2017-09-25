@@ -2,7 +2,6 @@
 #define VEC_HPP
 
 #include <OpenGL/OpenGL.h>
-
 #include <iostream>
 #include <cmath>
 #include <iomanip>
@@ -10,7 +9,7 @@
 using namespace std;
 
 // Zero tolerance, that is any number less than this considered to be 0
-const GLfloat zero_tolerance = 1e-7;
+const GLfloat zero_tolerance = 1e-8;
 
 //
 // Two-dimensional real vector

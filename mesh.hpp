@@ -5,11 +5,8 @@
 #include <sstream>
 #include <string>
 
-#include "vec.hpp"
-#include "mat.hpp"
-#include "list.hpp"
-
 #include "graphics.hpp"
+#include "list.hpp"
 
 //
 // Mesh container

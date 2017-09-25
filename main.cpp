@@ -1,6 +1,6 @@
 #include "graphics.hpp"
-#include "mesh.hpp"
 #include "scene.hpp"
+#include "mesh.hpp"
 
 using namespace std;
 

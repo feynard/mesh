@@ -6,20 +6,18 @@
 #include <OpenGL/OpenGL.h>
 #include <GLUT/GLUT.h>
 
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#ifdef __APPLE__
+    #define glGenVertexArrays glGenVertexArraysAPPLE
+    #define glBindVertexArray glBindVertexArrayAPPLE
+    #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#endif
 
 // Math constants
 const double pi = 3.14159265358979323846;
 
-// System libraries
-#include <cmath>
-#include <iostream>
-
+// Algebra
 #include "vec.hpp"
 #include "mat.hpp"
-#include "list.hpp"
 
 // Define a helpful macro for handling offsets into buffer objects
 #define BUFFER_OFFSET(offset) ((GLvoid*) (offset))
