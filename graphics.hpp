@@ -2,6 +2,7 @@
 #define GRAPHICS_HPP
 
 #include "graphics_root.hpp"
+#include "colorscheme.hpp"
 #include "scene.hpp"
 #include "mesh.hpp"
 

@@ -34,7 +34,7 @@ private:
         D var;
         Node* next;
         Node* prev;
-        Node(const D& x): var(x), next(0), prev(0) {}
+        Node(const D & x): var(x), next(0), prev(0) {}
     };
 
     Node* root_;        // Head of a list
@@ -78,7 +78,7 @@ public:
 
 
     // Add element to the tail, O(1)
-    void push(const D& x) {
+    void push(const D & x) {
         if (root_ == 0) {
             root_ = new Node(x);
             tail_ = root_;
@@ -92,7 +92,7 @@ public:
     }
 
     // Add element to the beginning, O(1)
-    void push_head(const D& x) {
+    void push_head(const D & x) {
         if (root_ == 0) {
             root_ = new Node(x);
             tail_ = root_;
@@ -140,7 +140,7 @@ public:
     }
 
     // Delete a specific element, O(n)
-    void remove(const D& x) {
+    void remove(const D & x) {
         Node *p = root_;
 
         while (p) {
@@ -184,26 +184,25 @@ public:
             previous = p, p = p -> next;
 
         if (p == root_ && p != tail_) {
-           root_ = root_ -> next;
-           delete root_ -> prev;
-           root_ -> prev = 0;
-           return;
-       } else if (p == tail_ && p != root_) {
-           tail_ = p -> prev;
-           p -> prev -> next = 0;
-           delete p;
-           return;
-       } else if (p == tail_ && p == root_) {
-           delete root_;
-           root_ = 0;
-           tail_ = 0;
-           return;
+            root_ = root_ -> next;
+            delete root_ -> prev;
+            root_ -> prev = 0;
+            return;
+        } else if (p == tail_ && p != root_) {
+            tail_ = p -> prev;
+            p -> prev -> next = 0;
+            delete p;
+            return;
+        } else if (p == tail_ && p == root_) {
+            delete root_;
+            root_ = 0;
+            tail_ = 0;
+            return;
        }
 
-
-        p -> prev -> next = p -> next;
-        p -> next -> prev = p -> prev;
-        delete p;
+       p -> prev -> next = p -> next;
+       p -> next -> prev = p -> prev;
+       delete p;
     }
 
 
@@ -240,19 +239,19 @@ public:
     int length() { return n_; }
 
     // Tail, O(1)
-    D* tail() {
+    D& tail() {
         if (root_ == 0)
             return 0;
         else
-            return &(tail_ -> var);
+            return tail_ -> var;
     }
 
     // Head, O(1)
-    D* root() {
+    D& root() {
         if (root_ == 0)
             return 0;
         else
-            return &(root_ -> var);
+            return root_ -> var;
     }
 
 
@@ -261,16 +260,16 @@ public:
     //
 
     // Indexing operator, O(N)
-    D* operator [] (int i) {
+    D& operator [] (int i) {
         Node *p = root_;
         for (int j = 0; j < i; j++)
             p = p -> next;
 
-        return &(p -> var);
+        return p -> var;
     }
 
     // Input, push, O(1)
-    friend std::istream& operator >> (std::istream& in, List<D>& list) {
+    friend std::istream & operator >> (std::istream& in, List<D> & list) {
         D element;
         in >> element;
         list.push(element);
@@ -278,7 +277,7 @@ public:
     }
 
     // Output, equivalent to pop, that is complexity is O(1)
-    friend std::ostream& operator << (std::ostream& out, List<D>& list) {
+    friend std::ostream & operator << (std::ostream& out, List<D> & list) {
         out << list.pop();
         return out;
     }

@@ -5,7 +5,7 @@ using namespace std;
 // Shader attribute locations
 GLuint CamPos, CamRot, Color, loc;
 
-Mesh my_mesh_1, my_mesh_2;
+Mesh my_mesh;
 Scene my_scene;
 
 void Init(int argc, char **argv)
@@ -21,17 +21,13 @@ void Init(int argc, char **argv)
     CamPos = glGetUniformLocation(program, "cam_position");
     CamRot = glGetUniformLocation(program, "cam_rotation");
 
+    my_mesh.load_file("obj_files/banana.obj");
+    my_mesh.set_colorscheme(solarized);
+    my_mesh.set_attributes(Color);
+
     my_scene.init(Color, CamPos, CamRot);
-
-    if (argc > 1)
-        my_mesh_1.load(argv[1]);
-    else
-        my_mesh_1.load("obj_files/teapot.obj");
-
-    my_mesh_1.set_color_attribute(Color);
-
-    my_scene.add_object(&my_mesh_1);
-//    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(0.61548, 3 * pi / 4, 0));
+    my_scene.add_object(my_mesh);
+    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(0.61548, 3 * pi / 4, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -79,6 +75,7 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     my_scene.draw();
+//    my_mesh.draw();
     DrawInterface(Color);
     glutSwapBuffers();
 }
@@ -97,12 +94,14 @@ void keyboard(int key, int x, int y)
 {
     if (key == 033)
         exit(EXIT_SUCCESS);
+
     if (key == 'v')
-        my_mesh_1.toogle_vertex_normals();
-    if (key == 'f')
-        my_mesh_1.toogle_face_normals();
+        my_mesh.toogle_vertex_normals();
+//    if (key == 'f')
+//        my_mesh_1.toogle_face_normals();
     if (key == 'b')
-        my_mesh_1.toogle_bounding_box();
+        my_mesh.toogle_bounding_box();
+
     if (key == '[')
         my_scene.previous_camera();
     if (key == ']')
@@ -167,6 +166,7 @@ void mouse_motion(int x, int y)
 
     glutPostRedisplay();
 }
+
 
 int main(int argc, char **argv)
 {

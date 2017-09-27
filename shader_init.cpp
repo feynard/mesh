@@ -1,5 +1,7 @@
 #include "graphics.hpp"
 
+using namespace std;
+
 // Read file into a string
 static char* ReadFile(const char* file)
 {
@@ -43,7 +45,7 @@ GLuint ShaderInit(const char* vertex_shader, const char* fragment_shader)
         s.source = ReadFile(s.filename);
 
         if (shaders[i].source == NULL) {
-            std::cerr << "Failed to read: " << s.filename << std::endl;
+            cerr << "Failed to read: " << s.filename << endl;
             exit(EXIT_FAILURE);
         }
 
@@ -55,14 +57,13 @@ GLuint ShaderInit(const char* vertex_shader, const char* fragment_shader)
     	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 
         if (!compiled) {
-            std::cerr << "Failed to compile: " << s.filename << std::endl;
+            cerr << "Failed to compile: " << s.filename << endl;
             GLint logSize;
             glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logSize);
             char* logMsg = new char[logSize];
             glGetShaderInfoLog(shader, logSize, NULL, logMsg);
-            std::cerr << logMsg << std::endl;
+            cerr << logMsg << endl;
             delete [] logMsg;
-
 	        exit(EXIT_FAILURE);
         }
 
@@ -77,12 +78,12 @@ GLuint ShaderInit(const char* vertex_shader, const char* fragment_shader)
     GLint  linked;
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if (!linked) {
-    	std::cerr << "Shader program failed to link" << std::endl;
+    	cerr << "Shader program failed to link" << endl;
     	GLint logSize;
     	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logSize);
     	char* logMsg = new char[logSize];
     	glGetProgramInfoLog(program, logSize, NULL, logMsg);
-    	std::cerr << logMsg << std::endl;
+    	cerr << logMsg << endl;
     	delete [] logMsg;
 
     	exit(EXIT_FAILURE);

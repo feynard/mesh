@@ -7,7 +7,6 @@
 #include "mesh.hpp"
 #include "list.hpp"
 
-// Scene...
 class Scene {
 
     // Inner camera structure for holding transformations
@@ -19,9 +18,9 @@ class Scene {
         vec3 rotation;
     };
 
-    List <Mesh*> objects_;      // Main geometry of a scene: .obj files, etc.
+    List <Mesh> objects_;      // Main geometry of a scene: .obj files, etc.
     List <Camera> cameras_;     // All the cameras
-    List <GLuint> cam_geo_;     // Geometry of a cameras
+    List <GLuint> cam_geo_;     // Geometry buffers of all the cameras
 
     // Active camera and index for tracing through the all cameras (in a list)
     Camera active_camera_;
@@ -58,7 +57,11 @@ public:
     void init(GLuint colour, GLuint cam_position, GLuint cam_rotation);
 
     // Add new object
-    void add_object(Mesh* G);
+    // New version (with new list):
+    // add_object(Mesh& mesh) {
+    //     objects_.push(mesh);
+    // }
+    void add_object(const Mesh & G);
 
     // Add new camera
     void add_camera(vec3 pos, vec3 rot);

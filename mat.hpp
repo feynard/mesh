@@ -100,7 +100,7 @@ public:
     mat3(const vec3& u, const vec3& v, const vec3& w);
 
     // Diagonal matrix
-    mat3(const GLfloat c);
+    mat3(const GLfloat s);
 
     // Explicit constructor
     mat3(

@@ -36,7 +36,7 @@ void Scene::init(GLuint colour, GLuint cam_position, GLuint cam_rotation) {
     cam_rot_ = cam_rotation;
 }
 
-void Scene::add_object(Mesh* G) {
+void Scene::add_object(const Mesh & G) {
     objects_.push(G);
 }
 
@@ -90,7 +90,7 @@ void Scene::draw() {
     use_camera(active_camera_);
 
     for(objects_.set_iterator(); objects_.iterator(); objects_.iterate())
-        objects_.get_iterator() -> draw();
+        objects_.get_iterator().draw();
 
     draw_grid();
     draw_cameras();
@@ -153,7 +153,7 @@ void Scene::previous_camera() {
 
     if (camera_index_ == -1) {
         camera_index_ = 0;
-        active_camera_ = *cameras_[camera_index_];
+        active_camera_ = cameras_[camera_index_];
         return;
     }
 
@@ -162,7 +162,7 @@ void Scene::previous_camera() {
     else
         camera_index_--;
 
-    active_camera_ = *cameras_[camera_index_];
+    active_camera_ = cameras_[camera_index_];
 }
 
 void Scene::next_camera() {
@@ -171,7 +171,7 @@ void Scene::next_camera() {
 
     if (camera_index_ == -1) {
         camera_index_ = 0;
-        active_camera_ = *cameras_[camera_index_];
+        active_camera_ = cameras_[camera_index_];
         return;
     }
 
@@ -180,14 +180,14 @@ void Scene::next_camera() {
     else
         camera_index_++;
 
-    active_camera_ = *cameras_[camera_index_];
+    active_camera_ = cameras_[camera_index_];
 }
 
 void Scene::delete_active_camera() {
     if (camera_index_ == -1)
         return;
 
-    glDeleteBuffers(1, cam_geo_[camera_index_]);
+    glDeleteBuffers(1, &cam_geo_[camera_index_]);
     cameras_.remove_by_index(camera_index_);
     cam_geo_.remove_by_index(camera_index_);
     camera_index_ = -1;

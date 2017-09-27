@@ -2,7 +2,7 @@ CC = g++
 GCC_FLAGS = -Wall -pedantic -Wno-deprecated-declarations
 OPENGL_FLAG = -framework OpenGL
 GLUT_FRAMEWORK = -framework GLUT
-OBJECTS = main.o scene.o mesh.o shader_init.o vec.o mat.o
+OBJECTS = main.o mesh.o shader_init.o vec.o mat.o scene.o
 
 program: $(OBJECTS)
 	$(CC) $(GCC_FLAGS) $(OPENGL_FLAG) $(GLUT_FRAMEWORK) $(OBJECTS) -o program
