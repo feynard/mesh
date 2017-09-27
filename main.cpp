@@ -1,10 +1,6 @@
 #include "graphics.hpp"
-#include "scene.hpp"
-#include "mesh.hpp"
 
 using namespace std;
-
-vec4 color(220 / 255.0, 50 / 255.0, 47 / 255.0, 1.0);
 
 // Shader attribute locations
 GLuint CamPos, CamRot, Color, loc;
@@ -19,7 +15,8 @@ void Init(int argc, char **argv)
     glUseProgram(program);
 
     // Set shader attributes
-    loc    = glGetAttribLocation(program, "position");
+    loc = glGetAttribLocation(program, "position");
+
     Color  = glGetUniformLocation(program, "edge_color");
     CamPos = glGetUniformLocation(program, "cam_position");
     CamRot = glGetUniformLocation(program, "cam_rotation");
@@ -34,7 +31,7 @@ void Init(int argc, char **argv)
     my_mesh_1.set_color_attribute(Color);
 
     my_scene.add_object(&my_mesh_1);
-    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(0.61548, 3 * pi / 4, 0));
+//    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(0.61548, 3 * pi / 4, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));

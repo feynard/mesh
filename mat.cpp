@@ -8,8 +8,8 @@
 
 mat2::mat2()
 {
-    M_[0] = vec2(0, 0);
-    M_[1] = vec2(0, 0);
+    M_[0] = vec2(0);
+    M_[1] = vec2(0);
 }
 
 mat2::mat2(const vec2& u, const vec2& v)

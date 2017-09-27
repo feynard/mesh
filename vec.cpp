@@ -10,6 +10,11 @@ vec2::vec2()
     x = 0, y = 0;
 }
 
+vec2::vec2(GLfloat s)
+{
+    x = s, y = s;
+}
+
 vec2::vec2(GLfloat a, GLfloat b)
 {
     x = a, y = b;

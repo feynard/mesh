@@ -5,7 +5,8 @@
 #include <sstream>
 #include <string>
 
-#include "graphics.hpp"
+#include "graphics_root.hpp"
+#include "vec.hpp"
 #include "list.hpp"
 
 //

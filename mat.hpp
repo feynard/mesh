@@ -1,11 +1,11 @@
 #ifndef MAT_HPP
 #define MAT_HPP
 
-#include <OpenGL/OpenGL.h>
+#include "graphics_root.hpp"
+#include "vec.hpp"
+
 #include <iostream>
 #include <cmath>
-
-#include "vec.hpp"
 
 //
 // Two by two real valued matrix

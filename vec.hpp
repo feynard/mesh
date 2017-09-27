@@ -1,7 +1,8 @@
 #ifndef VEC_HPP
 #define VEC_HPP
 
-#include <OpenGL/OpenGL.h>
+#include "graphics_root.hpp"
+
 #include <iostream>
 #include <cmath>
 #include <iomanip>
@@ -20,7 +21,7 @@ struct vec2 {
 
     // Constructors
     vec2();
-    vec2(GLfloat s) {x = s, y = s;}
+    vec2(GLfloat s);
     vec2(const GLfloat a, const GLfloat b);
     vec2(const vec2& v);
 

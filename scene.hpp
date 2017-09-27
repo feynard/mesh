@@ -1,19 +1,18 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include "graphics.hpp"
+#include "graphics_root.hpp"
+#include "vec.hpp"
+#include "mat.hpp"
 #include "mesh.hpp"
 #include "list.hpp"
 
 // Scene...
 class Scene {
 
-    // Inner camera struct for holding transformations
+    // Inner camera structure for holding transformations
     struct Camera {
-        Camera() {
-            position = vec3(0, 0, 0), rotation = vec3(0, 0, 0);
-        }
-
+        Camera() : position(0), rotation(0) {}
         Camera(vec3 pos, vec3 rot) : position(pos), rotation(rot) {}
 
         vec3 position;
