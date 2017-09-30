@@ -1,11 +1,14 @@
 #include "scene.hpp"
 
-Scene::Scene() {
+Scene::Scene()
+{
     build_grid();
     build_camera_model();
 
     camera_index_ = 0;
     active_camera_ = Camera(vec3(0, 0, 0), vec3(0, 0, 0));
+
+    object_index_ = 0;
 
     grid_colour_ = vec4(42 / 255.0, 161 / 255.0, 152 / 255.0, 1.0);
     camera_colour_ = vec4(133 / 255.0, 153 / 255.0, 0 / 255.0, 1.0);
@@ -15,7 +18,8 @@ Scene::Scene() {
     zoom_s = 0.01;
 }
 
-Scene::~Scene() {
+Scene::~Scene()
+{
     for(cam_geo_.set_iterator(); cam_geo_.iterator(); cam_geo_.iterate())
         glDeleteBuffers(1, &cam_geo_.get_iterator());
 
@@ -23,7 +27,8 @@ Scene::~Scene() {
     glDeleteVertexArrays(1, &vao_);
 }
 
-void Scene::init(GLuint colour, GLuint cam_position, GLuint cam_rotation) {
+void Scene::init(GLuint colour, GLuint cam_transform)
+{
     glGenVertexArrays(1, &vao_);
     glBindVertexArray(vao_);
 
@@ -32,12 +37,35 @@ void Scene::init(GLuint colour, GLuint cam_position, GLuint cam_rotation) {
     glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(vec3), grid_, GL_STATIC_DRAW);
 
     colour_ = colour;
-    cam_pos_ = cam_position;
-    cam_rot_ = cam_rotation;
+    cam_transform_ = cam_transform;
 }
+
+void Scene::add_direct(const char *obj_file, const ColorScheme & colorscheme,
+    GLuint colour)
+{
+    Mesh new_mesh;
+    objects_.push(new_mesh);
+
+    if (objects_.length() > 0)
+        objects_[object_index_].active = false;
+
+    objects_.tail().load_file(obj_file);
+    objects_.tail().set_colorscheme(colorscheme);
+    objects_.tail().set_attributes(colour);
+
+    object_index_ = objects_.length() - 1;
+    objects_[object_index_].active = true;
+}
+
 
 void Scene::add_object(const Mesh & G) {
     objects_.push(G);
+
+    if (objects_.length() > 0)
+        objects_[object_index_].active = false;
+
+    object_index_ = objects_.length() - 1;
+    objects_[object_index_].active = true;
 }
 
 void Scene::add_camera(vec3 pos, vec3 rot) {
@@ -75,10 +103,10 @@ void Scene::add_camera() {
     vec3 new_camera[48];
     for (int i = 0; i < 48; i++)
         new_camera[i] =
-            Ry(active_camera_.rotation.y) *
-            Rx(active_camera_.rotation.x) *
-            Rz(active_camera_.rotation.z) * camera_model_[i] +
-            active_camera_.position;
+            Ry(active_camera_.t[1][1]) *
+            Rx(active_camera_.t[1][0]) *
+            Rz(active_camera_.t[1][2]) * camera_model_[i] +
+            active_camera_.t[0];
 
     glBufferData(GL_ARRAY_BUFFER, 48 * sizeof(vec3), new_camera,
         GL_STATIC_DRAW);
@@ -96,53 +124,75 @@ void Scene::draw() {
     draw_cameras();
 }
 
+void Scene::toogle_vertex_normals()
+{
+    if (objects_.length() == 0)
+        return;
+
+    objects_[object_index_].toogle_vertex_normals();
+}
+
+void Scene::toogle_bounding_box()
+{
+    if (objects_.length() == 0)
+        return;
+
+    objects_[object_index_].toogle_bounding_box();
+}
+
+// Maya controls
+
 void Scene::update_camera_move(int delta_x, int delta_y) {
-    active_camera_.position =
-    Rz(-active_camera_.rotation.z) *
-    Rx(-active_camera_.rotation.x) *
-    Ry(-active_camera_.rotation.y) *
-    active_camera_.position;
+    active_camera_.t[0] =
+    Rz(-active_camera_.t[1][2]) *
+    Rx(-active_camera_.t[1][0]) *
+    Ry(-active_camera_.t[1][1]) *
+    active_camera_.t[0];
 
-    active_camera_.position.y -= move_s * delta_y;
-    active_camera_.position.x += move_s * delta_x;
+    active_camera_.t[0][1] -= move_s * delta_y;
+    active_camera_.t[0][0] += move_s * delta_x;
 
-    active_camera_.position =
-    Ry(active_camera_.rotation.y) *
-    Rx(active_camera_.rotation.x) *
-    Rz(active_camera_.rotation.z) *
-    active_camera_.position;
-
-    camera_index_ = -1;
-}void Scene::update_camera_roll(int d) {
-    active_camera_.rotation[2] += rot_s * d;
-
-    if (active_camera_.rotation[2] > 2 * pi)
-        active_camera_.rotation[2] -= 2 * pi;
-    if (active_camera_.rotation[2] < - 2 * pi)
-        active_camera_.rotation[2] += 2 * pi;
+    active_camera_.t[0] =
+    Ry(active_camera_.t[1][1]) *
+    Rx(active_camera_.t[1][0]) *
+    Rz(active_camera_.t[1][2]) *
+    active_camera_.t[0];
 
     camera_index_ = -1;
 }
+
+void Scene::update_camera_roll(int d) {
+    active_camera_.t[1][2] += rot_s * d;
+
+    if (active_camera_.t[1][2] > 2 * pi)
+        active_camera_.t[1][2] -= 2 * pi;
+    if (active_camera_.t[1][2] < - 2 * pi)
+        active_camera_.t[1][2] += 2 * pi;
+
+    camera_index_ = -1;
+}
+
 void Scene::update_camera_zoom(int d) {
     vec3 v(0,0,1);
-    v = Ry(active_camera_.rotation.y) * Rx(active_camera_.rotation.x) * v;
-    active_camera_.position += zoom_s * d * v;
+    v = Ry(active_camera_.t[1][1]) * Rx(active_camera_.t[1][0]) * v;
+    active_camera_.t[0] += zoom_s * d * v;
     camera_index_ = -1;
 }
+
 void Scene::update_camera_spherical(int dx, int dy) {
-    active_camera_.position =
-        Ry(rot_s * dx + active_camera_.rotation.y) *
+    active_camera_.t[0] =
+        Ry( rot_s * dx + active_camera_.t[1][1]) *
         Rx(-rot_s * dy) *
-        Ry(-active_camera_.rotation.y) *
-        active_camera_.position;
+        Ry(-active_camera_.t[1][1]) *
+        active_camera_.t[0];
 
-    active_camera_.rotation[0] -= rot_s * dy;
-    active_camera_.rotation[1] += rot_s * dx;
+    active_camera_.t[1][0] -= rot_s * dy;
+    active_camera_.t[1][1] += rot_s * dx;
 
-    if (active_camera_.rotation[1] > 2 * pi)
-        active_camera_.rotation[1] -= 2 * pi;
-    if (active_camera_.rotation[1] < - 2 * pi)
-        active_camera_.rotation[1] += 2 * pi;
+    if (active_camera_.t[1][1] > 2 * pi)
+        active_camera_.t[1][1] -= 2 * pi;
+    if (active_camera_.t[1][1] < - 2 * pi)
+        active_camera_.t[1][1] += 2 * pi;
 
     camera_index_ = -1;
 }
@@ -187,7 +237,7 @@ void Scene::delete_active_camera() {
     if (camera_index_ == -1)
         return;
 
-    glDeleteBuffers(1, &cam_geo_[camera_index_]);
+    glDeleteBuffers(1, & cam_geo_[camera_index_]);
     cameras_.remove_by_index(camera_index_);
     cam_geo_.remove_by_index(camera_index_);
     camera_index_ = -1;
@@ -283,6 +333,35 @@ void Scene::draw_cameras() {
 }
 
 void Scene::use_camera(Camera cam) {
-    glUniform3fv(cam_pos_, 1, (GLfloat*) &cam.position);
-    glUniform3fv(cam_rot_, 1, (GLfloat*) &cam.rotation);
+    glUniform3fv(cam_transform_, 2, (GLfloat*) & cam);
+}
+
+void Scene::previous_object()
+{
+    if (objects_.length() == 0)
+        return;
+
+    if (objects_.length() > 1)
+        objects_[object_index_].active = false;
+
+    object_index_--;
+    if (object_index_ < 0)
+        object_index_ = objects_.length() - 1;
+
+    objects_[object_index_].active = true;
+}
+
+void Scene::next_object()
+{
+    if (objects_.length() == 0)
+        return;
+
+    if (objects_.length() > 1)
+        objects_[object_index_].active = false;
+
+    object_index_++;
+    if (object_index_ >= objects_.length())
+        object_index_ = 0;
+
+    objects_[object_index_].active = true;
 }

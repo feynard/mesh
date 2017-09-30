@@ -2,10 +2,12 @@
 
 using namespace std;
 
-// Shader attribute locations
-GLuint CamPos, CamRot, Color, loc;
+// Shader attributes:
+// Camera - camera transformations, array of two 3-vectors [pos, rot]
+// Local - same as camera, that is [local_pos, local_rot]
+// Colour - main fragment colour attribute
+GLuint Camera, Local, Colour;
 
-Mesh my_mesh;
 Scene my_scene;
 
 void Init(int argc, char **argv)
@@ -15,19 +17,30 @@ void Init(int argc, char **argv)
     glUseProgram(program);
 
     // Set shader attributes
-    loc = glGetAttribLocation(program, "position");
+    GLuint loc = glGetAttribLocation(program, "vertex_position");
 
-    Color  = glGetUniformLocation(program, "edge_color");
-    CamPos = glGetUniformLocation(program, "cam_position");
-    CamRot = glGetUniformLocation(program, "cam_rotation");
+    Camera = glGetUniformLocation(program, "cam");
+    Local  = glGetUniformLocation(program, "loc");
+    Colour  = glGetUniformLocation(program, "colour");
 
-    my_mesh.load_file("obj_files/banana.obj");
+    my_scene.init(Colour, Camera);
+
+/*
+    Mesh my_mesh;
+
+    my_mesh.load_file("obj_files/quad_sphere.obj");
     my_mesh.set_colorscheme(solarized);
     my_mesh.set_attributes(Color);
+*/
 
-    my_scene.init(Color, CamPos, CamRot);
-    my_scene.add_object(my_mesh);
-    my_scene.add_camera(vec3(0.3, 0.3, 0.3), vec3(0.61548, 3 * pi / 4, 0));
+    //my_scene.add_direct("tmp_1.obj", solarized, Color);
+    my_scene.add_direct("obj_files/banana.obj", solarized, Colour);
+    my_scene.add_direct("obj_files/ico.obj", solarized, Colour);
+    my_scene.add_direct("obj_files/cube.obj", solarized, Colour);
+
+
+//    my_scene.add_object(my_mesh);
+    my_scene.add_camera(vec3(0.3, 0.3, 0.0), vec3(pi/4, pi / 2, 0));
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -43,18 +56,19 @@ GLint Width = 600, Height = 600;
 GLsizei CurrentWidth = 960, CurrentHeight = 600;
 
 // Interface commands list
-const char *interface[] = {
+const char * interface[] = {
     "Quit (ESC)",
-    "Vertex Normals (v)",
-    "Faces Normals (f)",
-    "Bounding Box (b)",
-    "Switch Between Cameras ([,])",
-    "Add Camera (c)",
+    "Vertex Normals ('v')",
+    "Faces Normals ('f')",
+    "Bounding Box ('b')",
+    "Switch Between Cameras ('['', ']')",
+    "Add Camera ('c')",
     "Camera Rotation (Alt + LMB)",
     "Camera Move (Alt + MMB)",
     "Camera Zoom (Alt + RMB)",
     "Camera Roll (Ctrl + LMB)",
-    "Delete Camera (d)"
+    "Delete Camera ('d')",
+    "Switch Between Objects ('9', '0')"
 };
 
 // Draw list of commands
@@ -75,8 +89,7 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     my_scene.draw();
-//    my_mesh.draw();
-    DrawInterface(Color);
+    DrawInterface(Colour);
     glutSwapBuffers();
 }
 
@@ -96,12 +109,11 @@ void keyboard(int key, int x, int y)
         exit(EXIT_SUCCESS);
 
     if (key == 'v')
-        my_mesh.toogle_vertex_normals();
+        my_scene.toogle_vertex_normals();
 //    if (key == 'f')
 //        my_mesh_1.toogle_face_normals();
     if (key == 'b')
-        my_mesh.toogle_bounding_box();
-
+        my_scene.toogle_bounding_box();
     if (key == '[')
         my_scene.previous_camera();
     if (key == ']')
@@ -110,6 +122,10 @@ void keyboard(int key, int x, int y)
         my_scene.add_camera();
     if (key == 'd')
         my_scene.delete_active_camera();
+    if (key == '9')
+        my_scene.previous_object();
+    if (key == '0')
+        my_scene.next_object();
 
     glutPostRedisplay();
 }

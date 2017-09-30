@@ -170,11 +170,6 @@ vec3::vec3(const vec3& v)
     x = v.x, y = v.y, z = v.z;
 }
 
-vec3::vec3(const vec2& v)
-{
-    x = v.x, y = v.y, z = 0;
-}
-
 vec3::vec3(const vec2& v, const GLfloat s)
 {
     x = v.x, y = v.y, z = s;
@@ -320,6 +315,11 @@ vec4::vec4()
     x = 0, y = 0, z = 0, w = 0;
 }
 
+vec4::vec4(const GLfloat s)
+{
+    x = s, y = s, z = s, w = s;
+}
+
 vec4::vec4(const vec4& v)
 {
     x = v.x, y = v.y, z = v.z, w = v.w;
@@ -328,15 +328,11 @@ vec4::vec4(const vec4& v)
 vec4::vec4(GLfloat const a, GLfloat const b, GLfloat const c, GLfloat const d)
 {
     x = a, y = b, z = c, w = d;
+
     if (abs(a) < zero_tolerance) x = 0;
     if (abs(b) < zero_tolerance) y = 0;
     if (abs(c) < zero_tolerance) z = 0;
-    if (abs(c) < zero_tolerance) w = 0;
-}
-
-vec4::vec4(const vec3& v)
-{
-    x = v.x, y = v.y, z = v.z, w = 0;
+    if (abs(d) < zero_tolerance) w = 0;
 }
 
 vec4::vec4(const vec3& v, GLfloat s) {

@@ -13,14 +13,11 @@ Mesh::Mesh()
 {
     f_ = vn_ = 0;
     f_number_ = 0;
-
-    color_loc_ = 0;
-
+    colour_ = 0;
     set_colorscheme(solarized);
-
     draw_mode_[0] = draw_mode_[1] = draw_mode_[2] = false;
-
     mesh_vbo_ = 0;
+    active = true;
 }
 
 Mesh::Mesh(const Mesh& mesh)
@@ -28,25 +25,33 @@ Mesh::Mesh(const Mesh& mesh)
     if (f_ == 0) {
         f_ = vn_ = 0;
         f_number_ = 0;
-        color_loc_ = 0;
+        colour_ = 0;
         set_colorscheme(solarized);
         draw_mode_[0] = draw_mode_[1] = draw_mode_[2] = false;
         mesh_vbo_ = 0;
+        active = true;
         return;
     }
 
     f_number_ = mesh.f_number_;
 
-    f_ = new vec3[f_number_ * 3];
-    vn_ = new vec3[f_number_ * 6];
+    for (int i = 0; i < 24; i++)
+        bounding_box_[i] = mesh.bounding_box_[i];
 
-    for (int i = 0; i < mesh.f_number_ * 3; i++)
+    f_ = new vec3[f_number_ * 3];
+
+    for (int i = 0; i < f_number_ * 3; i++)
         f_[i] = mesh.f_[i];
 
-    for (int i = 0; i < mesh.f_number_ * 6; i++)
-        vn_[i] = mesh.vn_[i];
 
-    color_loc_ = mesh.color_loc_;
+    if (mesh.vn_ != 0) {
+        vn_ = new vec3[f_number_ * 6];
+        for (int i = 0; i < f_number_ * 6; i++)
+            vn_[i] = mesh.vn_[i];
+    } else
+        vn_ = 0;
+
+    colour_ = mesh.colour_;
 
     set_colorscheme(mesh.colorscheme_);
 
@@ -67,15 +72,14 @@ Mesh::~Mesh()
 
 void Mesh::set_colorscheme(const ColorScheme & colorscheme)
 {
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 9; i++)
         colorscheme_[i] = colorscheme[i];
 }
 
 void Mesh::set_attributes(GLuint color_location)
 {
-    color_loc_ = color_location;
+    colour_ = color_location;
 }
-
 
 void Mesh::load_file(const char* obj_file) {
     // Clear previous data
@@ -138,8 +142,10 @@ void Mesh::load_file(const char* obj_file) {
 
     // x_min, x_max, y_min, y_max, z_min, z_max
     GLfloat box_limit[6];
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; i++) {
+        box_limit[2 * i] = vertices_list[0][i];
         box_limit[2 * i + 1] = vertices_list[0][i];
+    }
 
     // Array of vertices
     vertices_number = vertices_list.length();
@@ -208,15 +214,13 @@ void Mesh::set_main_buffer()
     // Put vertex normals in buffer if they exist
     if (vn_ != 0) {
         glBufferData(GL_ARRAY_BUFFER,
-            f_number_ * 9 * sizeof(vec3) + 24 * sizeof(vec3), f_,
-            GL_STATIC_DRAW);
+            (f_number_ * 9 + 24) * sizeof(vec3), f_, GL_STATIC_DRAW);
 
-        glBufferSubData(GL_ARRAY_BUFFER, f_number_ * 3 * sizeof(vec3) + 24 * sizeof(vec3),
+        glBufferSubData(GL_ARRAY_BUFFER, (f_number_ * 3 + 24) * sizeof(vec3),
             f_number_ * 6 * sizeof(vec3), vn_);
     } else {
-        glBufferData(GL_ARRAY_BUFFER,
-            f_number_ * 3 * sizeof(vec3) + 24 * sizeof(vec3), f_,
-            GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (f_number_ * 3 + 24) * sizeof(vec3),
+            f_, GL_STATIC_DRAW);
     }
 
     // Bounding box
@@ -229,19 +233,27 @@ void Mesh::draw() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     // Drawing model
+
+    if (!active) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[8]);
+        glDrawArrays(GL_TRIANGLES, 0, f_number_ * 3);
+        return;
+    }
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glUniform4fv(color_loc_, 1, (GLfloat*) &colorscheme_[3]);
+    glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[3]);
     glDrawArrays(GL_TRIANGLES, 0, f_number_ * 3);
 
     // Drawing vertex normals
     if (vn_ != 0 && draw_mode_[0] == true) {
-        glUniform4fv(color_loc_, 1, (GLfloat*) &colorscheme_[1]);
+        glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[1]);
         glDrawArrays(GL_LINES, f_number_ * 3 + 24, f_number_ * 6);
     }
 
     // Drawing bounding box in model coordinates
     if (draw_mode_[2]) {
-        glUniform4fv(color_loc_, 1, (GLfloat*) &colorscheme_[7]);
+        glUniform4fv(colour_, 1, (GLfloat*) &colorscheme_[7]);
         glDrawArrays(GL_LINES, f_number_ * 3, 24);
     }
 

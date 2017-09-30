@@ -82,7 +82,6 @@ struct vec3 {
     vec3(GLfloat s) {x = s, y = s, z = s; }
     vec3(const GLfloat a, const GLfloat b, const GLfloat c);
     vec3(const vec3& v);
-    vec3(const vec2& v);
     vec3(const vec2& v, const GLfloat s);
 
 
@@ -145,9 +144,9 @@ struct vec4 {
 
     // Constructors
     vec4();
+    vec4(const GLfloat s);
     vec4(const GLfloat a, const GLfloat b, const GLfloat c, const GLfloat d);
     vec4(const vec4& v);
-    vec4(const vec3& v);
     vec4(const vec3& v, const GLfloat s);
 
     //

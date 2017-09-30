@@ -12,22 +12,28 @@ mat2::mat2()
     M_[1] = vec2(0);
 }
 
-mat2::mat2(const vec2& u, const vec2& v)
+mat2::mat2(const vec2& a, const vec2& b)
 {
-    M_[0] = u;
-    M_[1] = v;
+    M_[0] = a;
+    M_[1] = b;
 }
 
-mat2::mat2(const GLfloat c)
+mat2::mat2(const GLfloat s)
 {
-    M_[0].x = c;
-    M_[1].y = c;
+    M_[0] = vec2(s, 0);
+    M_[1] = vec2(0, s);
 }
 
 mat2::mat2(GLfloat a00, GLfloat a01, GLfloat a10, GLfloat a11)
 {
     M_[0].x = a00; M_[0].y = a01;
     M_[1].x = a10; M_[1].y = a11;
+}
+
+mat2::mat2(const mat2 & A)
+{
+    M_[0] = A.M_[0];
+    M_[1] = A.M_[1];
 }
 
 // Operator overloading
@@ -163,14 +169,16 @@ mat2 Ref(const GLfloat theta)
 
 mat3::mat3()
 {
-    M_[0] = vec3(0, 0, 0);
-    M_[1] = vec3(0, 0, 0);
-    M_[2] = vec3(0, 0, 0);
+    M_[0] = vec3(0);
+    M_[1] = vec3(0);
+    M_[2] = vec3(0);
 }
 
-mat3::mat3(const vec3& u, const vec3& v, const vec3& w)
+mat3::mat3(const vec3& a, const vec3& b, const vec3& c)
 {
-    M_[0] = u, M_[1] = v, M_[2] = w;
+    M_[0] = a;
+    M_[1] = b;
+    M_[2] = c;
 }
 
 mat3::mat3(const GLfloat s)
@@ -190,6 +198,12 @@ mat3::mat3(
     M_[2] = vec3(a20, a21, a22);
 }
 
+mat3::mat3(const mat3 & A)
+{
+    M_[0] = A.M_[0];
+    M_[1] = A.M_[1];
+    M_[2] = A.M_[2];
+}
 
 // Operator overloading
 
@@ -340,4 +354,155 @@ mat3 Rz(const GLfloat theta)
         sin(theta),  cos(theta), 0.0,
                0.0,         0.0, 1.0
     );
+}
+
+
+//
+// Homogeneous four by four matrix
+//
+
+// Constructors
+
+mat4::mat4()
+{
+    M_[0] = vec4(0);
+    M_[1] = vec4(0);
+    M_[2] = vec4(0);
+    M_[3] = vec4(0);
+}
+
+mat4::mat4(const vec4 & a, const vec4 & b, const vec4 & c, const vec4 & d)
+{
+    M_[0] = a;
+    M_[1] = b;
+    M_[2] = c;
+    M_[3] = d;
+}
+
+mat4::mat4(const GLfloat s)
+{
+    M_[0] = vec4(s, 0, 0, 0);
+    M_[1] = vec4(0, s, 0, 0);
+    M_[2] = vec4(0, 0, s, 0);
+    M_[3] = vec4(0, 0, 0, s);
+}
+
+mat4::mat4(
+const GLfloat a00, const GLfloat a01, const GLfloat a02, const GLfloat a03,
+const GLfloat a10, const GLfloat a11, const GLfloat a12, const GLfloat a13,
+const GLfloat a20, const GLfloat a21, const GLfloat a22, const GLfloat a23,
+const GLfloat a30, const GLfloat a31, const GLfloat a32, const GLfloat a33)
+{
+    M_[0] = vec4(a00, a01, a02, a03);
+    M_[1] = vec4(a10, a11, a12, a13);
+    M_[2] = vec4(a20, a21, a22, a23);
+    M_[3] = vec4(a30, a31, a32, a33);
+}
+
+
+mat4::mat4(const mat4 & A)
+{
+    M_[0] = A.M_[0];
+    M_[1] = A.M_[1];
+    M_[2] = A.M_[2];
+    M_[3] = A.M_[3];
+}
+
+// Operator overloading
+
+vec4 & mat4::operator [] (const unsigned int i)
+{
+    return M_[i];
+}
+
+const vec4 & mat4::operator [] (const unsigned int i) const
+{
+    return M_[i];
+}
+
+mat4 operator * (const mat4 & A, const mat4 & B)
+{
+    mat4 C;
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            C[i][j] =
+                A[i][0] * B[0][j] +
+                A[i][1] * B[1][j] +
+                A[i][2] * B[2][j] +
+                A[i][3] * B[3][j];
+
+    return C;
+}
+
+ostream & operator << (ostream & os, const mat4 & A)
+{
+    return os << A[0] << endl << A[1] << endl << A[2] << endl << A[3];
+}
+
+mat4 RotX(const GLfloat theta)
+{
+    return mat4(
+        1.0,        0.0,           0, 0.0,
+        0.0, cos(theta), -sin(theta), 0.0,
+        0.0, sin(theta),  cos(theta), 0.0,
+        0.0,        0.0,         0.0, 1.0
+    );
+}
+
+mat4 RotY(const GLfloat theta)
+{
+    return mat4(
+        cos(theta), 0.0, -sin(theta), 0.0,
+               0.0, 1.0,         0.0, 0.0,
+        sin(theta), 0.0,  cos(theta), 0.0,
+               0.0, 0.0,         0.0, 1.0
+    );
+}
+
+mat4 RotZ(const GLfloat theta)
+{
+    return mat4(
+        cos(theta), -sin(theta), 0.0, 0.0,
+        sin(theta),  cos(theta), 0.0, 0.0,
+               0.0,         0.0, 1.0, 0.0,
+               0.0,         0.0, 0.0, 1.0
+    );
+}
+
+mat4 Translate(const GLfloat x, const GLfloat y, const GLfloat z)
+{
+    mat4 T(1);
+
+    T[0][3] = x;
+    T[1][3] = y;
+    T[2][3] = z;
+
+    return T;
+}
+
+mat4 Translate(const vec3 & v)
+{
+    return Translate(v.x, v.y, v.z);
+}
+
+mat4 Translate(const vec4 & v)
+{
+    return Translate(v.x, v.y, v.z);
+}
+
+mat4 Frustum(
+    const GLfloat left, const GLfloat right,
+    const GLfloat bottom, const GLfloat top,
+    const GLfloat zNear, const GLfloat zFar)
+{
+    mat4 c;
+    c[0][0] = 2.0*zNear/(right - left);
+    c[0][2] = (right + left)/(right - left);
+    c[1][1] = 2.0*zNear/(top - bottom);
+    c[1][2] = (top + bottom)/(top - bottom);
+    c[2][2] = -(zFar + zNear)/(zFar - zNear);
+    c[2][3] = -2.0*zFar*zNear/(zFar - zNear);
+    c[3][2] = -1.0;
+    c[3][3] = 0.0;
+    return c;
 }

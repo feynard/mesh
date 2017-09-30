@@ -1,10 +1,12 @@
 To think about (have to):
+    * Rewrite everything with 4 by 4 matrices
+
     * Local transformation controls, move, scale, rotate
 
     * Child class of Mesh with "hardcoded" simple geometry. I still don't
     understand what does it mean?
 
-    * I think there should be done some work concerned with how .hpp files are 
+    * I think there should be done some work concerned with how .hpp files are
     included, for now there is some mess. For example, graphic_support.hpp
     compiles because of shader_init.cpp, which is not so good: it's impossible
     to add something new to it with generic types, vectors and matrices.

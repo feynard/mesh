@@ -23,13 +23,19 @@ public:
     mat2();
 
     // Two row vectors
-    mat2(const vec2& u, const vec2& v);
+    mat2(const vec2& a, const vec2& b);
 
     // Diagonal matrix
-    mat2(const GLfloat c);
+    mat2(const GLfloat s);
 
     // Explicit constructor
-    mat2(GLfloat a00, GLfloat a01, GLfloat a10, GLfloat a11);
+    mat2(
+    GLfloat a00, GLfloat a01,
+    GLfloat a10, GLfloat a11);
+
+    // Copy constructor
+    mat2(const mat2 & A);
+
 
     //
     // Operator overloading
@@ -104,9 +110,12 @@ public:
 
     // Explicit constructor
     mat3(
-        const GLfloat a00, const GLfloat a01, const GLfloat a02,
-        const GLfloat a10, const GLfloat a11, const GLfloat a12,
-        const GLfloat a20, const GLfloat a21, const GLfloat a22);
+    const GLfloat a00, const GLfloat a01, const GLfloat a02,
+    const GLfloat a10, const GLfloat a11, const GLfloat a12,
+    const GLfloat a20, const GLfloat a21, const GLfloat a22);
+
+    // Copy constructor
+    mat3(const mat3 & A);
 
     //
     // Operator overloading
@@ -153,5 +162,67 @@ GLfloat det(const mat3& A);
 mat3 Rx(const GLfloat theta);
 mat3 Ry(const GLfloat theta);
 mat3 Rz(const GLfloat theta);
+
+
+//
+// Homogeneous four by four matrix
+//
+struct mat4 {
+
+    vec4 M_[4];
+
+//public:
+
+    //
+    // Constructors
+    //
+
+    mat4();
+
+    // Four row vectors
+    mat4(const vec4 & a, const vec4 & b, const vec4 & c, const vec4 & d);
+
+    // Diagonal matrix
+    mat4(const GLfloat s);
+
+    // Explicit constructor
+    mat4(
+    const GLfloat a00, const GLfloat a01, const GLfloat a02, const GLfloat a03,
+    const GLfloat a10, const GLfloat a11, const GLfloat a12, const GLfloat a13,
+    const GLfloat a20, const GLfloat a21, const GLfloat a22, const GLfloat a23,
+    const GLfloat a30, const GLfloat a31, const GLfloat a32, const GLfloat a33);
+
+    // Copy constructor
+    mat4(const mat4 & A);
+
+    //
+    // Operator overloading
+    //
+
+    // Indexing operator
+    vec4 & operator [] (const unsigned int i);
+    const vec4 & operator [] (const unsigned int i) const;
+
+    // Matrix multiplication
+    friend mat4 operator * (const mat4 & A, const mat4 & B);
+
+    // Output
+    friend ostream& operator << (ostream& os, const mat4 & A);
+};
+
+// Rotation matrices generators
+mat4 RotX(const GLfloat theta);
+mat4 RotY(const GLfloat theta);
+mat4 RotZ(const GLfloat theta);
+
+// Uniform translation matrix
+mat4 Translate(const GLfloat x, const GLfloat y, const GLfloat z);
+mat4 Translate(const vec3 & v);
+mat4 Translate(const vec4 & v);
+
+mat4 Frustum(
+    const GLfloat left, const GLfloat right,
+    const GLfloat bottom, const GLfloat top,
+    const GLfloat zNear, const GLfloat zFar);
 
 #endif

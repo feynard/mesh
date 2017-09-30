@@ -11,23 +11,31 @@ class Scene {
 
     // Inner camera structure for holding transformations
     struct Camera {
-        Camera() : position(0), rotation(0) {}
-        Camera(vec3 pos, vec3 rot) : position(pos), rotation(rot) {}
+        Camera() {
+            t[0] = 0, t[1] = 0;
+        }
 
-        vec3 position;
-        vec3 rotation;
+        Camera(vec3 pos, vec3 rot) {
+            t[0] = pos, t[1] = rot;
+        }
+
+        // 0 - position, 1 - rotation
+        vec3 t[2];
     };
 
-    List <Mesh> objects_;      // Main geometry of a scene: .obj files, etc.
+    List <Mesh> objects_;       // Main geometry of a scene: .obj files, etc.
     List <Camera> cameras_;     // All the cameras
     List <GLuint> cam_geo_;     // Geometry buffers of all the cameras
+
+    // Active mesh, switching bounding box and normals works for this object
+    int object_index_;
 
     // Active camera and index for tracing through the all cameras (in a list)
     Camera active_camera_;
     int camera_index_;
 
     // Shader attributes
-    GLuint cam_pos_, cam_rot_, colour_;
+    GLuint colour_, cam_transform_;
 
     // Grid (Maya-like)
     GLuint grid_buf_;
@@ -54,14 +62,14 @@ public:
 
     // Default initiliser, need to prevent segmentation fault errors (GL
     // functions can't be called before GLUT is initialised)
-    void init(GLuint colour, GLuint cam_position, GLuint cam_rotation);
+    void init(GLuint colour, GLuint cam_transform);
 
     // Add new object
-    // New version (with new list):
-    // add_object(Mesh& mesh) {
-    //     objects_.push(mesh);
-    // }
     void add_object(const Mesh & G);
+
+    // Add new object without calling copy constructor
+    void add_direct(const char *obj_file, const ColorScheme & colorscheme,
+        GLuint colour);
 
     // Add new camera
     void add_camera(vec3 pos, vec3 rot);
@@ -72,7 +80,7 @@ public:
     // Main draw callback
     void draw();
 
-    // Camera move
+    // Camera move (Maya-like)
     void update_camera_move(int delta_x, int delta_y);
 
     // Update current camera's roll
@@ -81,14 +89,20 @@ public:
     // Zoom for current camera (that is moving camera along its main axis)
     void update_camera_zoom(int d);
 
-    // Spherical rotation of a camera (Maya-like)
+    // Spherical rotation of a camera (Maya-like) about origin
     void update_camera_spherical(int dx, int dy);
 
     // Switch between cameras
     void previous_camera();
-
-    // Switch between cameras
     void next_camera();
+
+    // Switch between objects
+    void previous_object();
+    void next_object();
+
+    // Toogle drawing options for the active object
+    void toogle_vertex_normals();
+    void toogle_bounding_box();
 
     // If camera was set by the index in cameras array it will be deleted
     void delete_active_camera();
