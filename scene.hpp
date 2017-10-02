@@ -123,16 +123,29 @@ public:
     void deactivate_transformation();
     bool transformation_is_active();
 
-    void local_transform(int delta_x, int delta_y);
+    // Delta's are pointer speed parameters, x and y are screen coordinates,
+    // that is normalised to be in interval [-1, 1], right bottom corner of a
+    // viewport corresponds to (-1, -1)
+    int local_transform(int axis, double delta_x, double delta_y,
+        double x, double y);
 
 private:
     void build_camera_model();
     void build_grid();
     void build_move_controller();
     void build_rot_controller();
+
+    // Calculate a parallel projection of a point to the screen plane
+    vec2 camera_plane_projection(vec3 point);
+
+    // Translates object along the axis according to the speed of pointer
+    void axis_transform(unsigned int axis, double delta_x, double delta_y);
+
+
     void draw_grid();
     void draw_cameras();
     void draw_active_controller();
+
     void use_camera(Camera cam);
 };
 

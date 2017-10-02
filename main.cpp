@@ -8,6 +8,7 @@ using namespace std;
 // Colour - main fragment colour attribute
 GLuint Camera, Local, Colour;
 
+// Main graphics and geometry handler
 Scene my_scene;
 
 void Init(int argc, char **argv)
@@ -25,8 +26,8 @@ void Init(int argc, char **argv)
 
     my_scene.init(Colour, Camera, Local);
 
-//    my_scene.add_direct("obj_files/cube.obj", solarized);
     my_scene.add_direct("obj_files/cube.obj", solarized);
+    my_scene.add_direct("obj_files/ico.obj", solarized);
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -38,41 +39,8 @@ void Init(int argc, char **argv)
 
 
 // Default vieport size
-GLint Width = 600, Height = 600;
+const GLint Width = 600, Height = 600;
 GLsizei CurrentWidth = 960, CurrentHeight = 600;
-
-// Interface commands list
-const char * interface[] = {
-    "Quit (ESC)",
-    "Vertex Normals ('v')",
-    "Faces Normals ('f')",
-    "Bounding Box ('b')",
-    "Switch Between Cameras ('['', ']')",
-    "Add Camera ('c')",
-    "Camera Rotation (Alt + LMB)",
-    "Camera Move (Alt + MMB)",
-    "Camera Zoom (Alt + RMB)",
-    "Camera Roll (Ctrl + LMB)",
-    "Delete Camera ('d')",
-    "Switch Between Objects ('9', '0')",
-    "Move ('w')",
-    "Scale ('e')",
-    "Rotate ('r')"
-};
-
-// Draw list of commands
-void DrawInterface(GLuint color_location)
-{
-    glUniform4f(color_location, 42 / 255.0, 161 / 255.0, 152 / 255.0, 1);
-
-    int x = 5, y = 5;
-
-    for (int i = 0; i < sizeof(interface) / sizeof(char*); i++) {
-        glWindowPos2i(x, y + i * 18);
-        for (int j = 0; j < strlen(interface[i]); j++)
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, interface[i][j]);
-    }
-}
 
 void display(void)
 {
@@ -134,7 +102,7 @@ bool left_button = false;
 bool right_button = false;
 bool middle_button = false;
 
-int axis;
+int axis = -1;
 
 int x_prev, y_prev;             // Previous pointer's coordinates
 
@@ -184,18 +152,27 @@ void mouse_motion(int x, int y)
         my_scene.update_camera_move(delta_x, delta_y);
     // Transformation handler
     else if (my_scene.transformation_is_active() && left_button) {
+        axis = my_scene.local_transform(
+            axis,
+            (double) -delta_x / 300,
+            (double)  delta_y / 300,
+            (-CurrentWidth + 2 * x) / (double) Width,
+            (CurrentHeight - 2 * y) / (double) Height);
+
+        /*
         if (axis == -1) {
             if (abs(delta_x) > abs(delta_y)) {
                 axis = 0;
-                my_scene.local_transform(delta_x, 0);
+                my_scene.local_transform(delta_x, 0, x - 150, 600 - y);
             } else {
                 axis = 1;
-                my_scene.local_transform(0, delta_y);
+                my_scene.local_transform(0, delta_y, x - 150, 600 - y);
             }
         } else if (axis == 0)
-            my_scene.local_transform(delta_x, 0);
+            my_scene.local_transform(delta_x, 0, x - 150, 600 - y);
         else if (axis == 1)
-            my_scene.local_transform(0, delta_y);
+            my_scene.local_transform(0, delta_y, x - 150, 600 - y);
+        */
 
     }
 
@@ -215,6 +192,9 @@ int main(int argc, char **argv)
     glutReshapeFunc(reshape);
     glutMouseFunc(mouse);
     glutMotionFunc(mouse_motion);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     Init(argc, argv);
 

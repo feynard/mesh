@@ -108,7 +108,7 @@ const GLfloat vec2::operator [] (const unsigned int i) const
 // Input and output
 ostream& operator << (ostream& os, const vec2& v)
 {
-    return os << v.x << v.y;
+    return os << v.x << ' ' << v.y;
 }
 
 istream& operator >> (istream& is, vec2& v)
@@ -270,7 +270,7 @@ vec3 operator * (const vec3& u, const vec3& v)
 // Input and output
 ostream& operator << (ostream& os, const vec3& v)
 {
-    return os << v.x << v.y << v.z;
+    return os << v.x << ' ' << v.y << ' ' << v.z;
 }
 
 istream& operator >> (istream& is, vec3& v)
@@ -354,10 +354,36 @@ const GLfloat vec4::operator [] (const unsigned int i) const
 ostream& operator << (ostream& os, const vec4& v)
 {
 
-    return os << v.x << v.y << v.z << v.w;
+    return os << v.x << ' ' << v.y << ' ' << v.z << ' ' << v.w;
 }
 
 istream& operator >> (istream& is, vec4& v)
 {
     return is >> v.x >> v.y >> v.z >> v.w;
+}
+
+
+//
+// Math functions
+//
+
+bool belongs_to_segment(const vec2 & point, const vec2 & end_0,
+    const vec2 & end_1, const double precision)
+{
+    if (precision <= 0)
+        return false;
+
+    double d = length(end_1 - end_0);
+    unsigned int n = ceil(d / precision);
+    vec2 step = (end_1 - end_0) / n;
+    vec2 current;
+
+    for (int i = 0; i < n; i++, current = end_0 + i * step)
+        if (point.x <= current.x + precision &&
+            point.x >= current.x - precision &&
+            point.y <= current.y + precision &&
+            point.y >= current.y - precision)
+            return true;
+
+    return false;
 }

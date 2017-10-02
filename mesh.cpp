@@ -251,6 +251,7 @@ void Mesh::set_main_buffer()
 void Mesh::draw() {
     glBindBuffer(GL_ARRAY_BUFFER, mesh_vbo_);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    vec3 null_transform[3] = { vec3(0), vec3(0), vec3(1) };
 
     // Drawing model
 
@@ -262,6 +263,7 @@ void Mesh::draw() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[8]);
         glDrawArrays(GL_TRIANGLES, 0, f_number_ * 3);
+        glUniform3fv(local_transform_, 3, (GLfloat*) & null_transform);
         return;
     }
 
@@ -281,8 +283,6 @@ void Mesh::draw() {
         glDrawArrays(GL_LINES, f_number_ * 3, 24);
     }
 
-
-    vec3 null_transform[3] = { vec3(0), vec3(0), vec3(1) };
     glUniform3fv(local_transform_, 3, (GLfloat*) & null_transform);
 }
 

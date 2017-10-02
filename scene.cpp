@@ -12,7 +12,7 @@ Scene::Scene()
 
     object_index_ = 0;
 
-    grid_colour_ = vec4(42 / 255.0, 161 / 255.0, 152 / 255.0, 1.0);
+    grid_colour_ = vec4(42 / 255.0, 161 / 255.0, 152 / 255.0, 0.5);
     camera_colour_ = vec4(133 / 255.0, 153 / 255.0, 0 / 255.0, 1.0);
 
     move_s = 0.005;
@@ -534,27 +534,68 @@ bool Scene::transformation_is_active()
         return true;
 }
 
-void Scene::local_transform(int delta_x, int delta_y)
+vec2 Scene::camera_plane_projection(vec3 point)
 {
+    vec3 a = active_camera_.t[1];
+    vec3 p = Rz(-a.z) * Rx(-a.x) * Ry(-a.y) * (point - active_camera_.t[0]);
+    return vec2(p.x, p.y);
+}
+
+void Scene::axis_transform(unsigned int axis, double delta_x, double delta_y)
+{
+    vec2 p = camera_plane_projection(objects_[object_index_].pivot);
+
+    vec2 end_p;
+
+    end_p = camera_plane_projection(objects_[object_index_].pivot +
+        move_controller_[2 * axis + 1]);
+
+    vec2 dv = vec2(delta_x, delta_y);
+
+    double delta_plane = dot(end_p - p, dv) / length(end_p - p);
+
+    vec3 cam_vec =
+        Ry(active_camera_.t[1][1]) *
+        Rx(active_camera_.t[1][0]) * vec3(0, 0, 1);
+
+
+    double C = dot(cam_vec, move_controller_[2 * axis + 1]) /
+        length(move_controller_[2 * axis + 1]);
+
+    double d_axis = delta_plane / sqrt(1 - C * C);
+
+    objects_[object_index_].transform[0][axis] += d_axis;
+    objects_[object_index_].pivot[axis] += d_axis;
+}
+
+int Scene::local_transform(int axis, double delta_x, double delta_y,
+    double x, double y)
+{
+
     // Translating
     if (active_transform_ == Transformation::translation) {
+        // Check if currently there is no transform
+        if (axis == -1) {
+            // Find projections to the camera plane
+            vec2 p = camera_plane_projection(objects_[object_index_].pivot);
+            vec2 end_p;
 
-        objects_[object_index_].transform[0][1] += move_s * delta_y;
-        objects_[object_index_].pivot[1] += move_s * delta_y;
+            // Check "closest" axis
+            for (int i = 0; i < 3; i++) {
+                end_p = camera_plane_projection(objects_[object_index_].pivot +
+                    move_controller_[2 * i + 1]);
 
-        double y_angle = active_camera_.t[1][1];
-
-        if ((y_angle >= 5 * pi / 4 && y_angle <= 2 * pi) ||
-            (y_angle <= pi / 4 && y_angle >= 0)) {
-
-            objects_[object_index_].transform[0][0] -= move_s * delta_x;
-            objects_[object_index_].pivot[0] -= move_s * delta_x;
-        } else {
-            objects_[object_index_].transform[0][2] -= move_s * delta_x;
-            objects_[object_index_].pivot[2] -= move_s * delta_x;
+                if (belongs_to_segment(vec2(x, y), p, end_p, 0.05)) {
+                    axis = i;
+                    break;
+                }
+            }
         }
-    }
 
+        axis_transform(axis, delta_x, delta_y);
+        return axis;
+    }
+/*
     // Scaling
     if (active_transform_ == Transformation::scaling) {
 
@@ -566,5 +607,7 @@ void Scene::local_transform(int delta_x, int delta_y)
         } else
             objects_[object_index_].transform[2][2] -= move_s * delta_x;
     }
+*/
 
+    return 0;
 }

@@ -23,7 +23,7 @@ struct vec2 {
     vec2();
     vec2(GLfloat s);
     vec2(const GLfloat a, const GLfloat b);
-    vec2(const vec2& v);
+    vec2(const vec2 & v);
 
     // Vector normalization to a given value
     void normalize(const GLfloat r);
@@ -146,8 +146,8 @@ struct vec4 {
     vec4();
     vec4(const GLfloat s);
     vec4(const GLfloat a, const GLfloat b, const GLfloat c, const GLfloat d);
-    vec4(const vec4& v);
-    vec4(const vec3& v, const GLfloat s);
+    vec4(const vec4 & v);
+    vec4(const vec3 & v, const GLfloat s);
 
     //
     // Operator overloading
@@ -161,5 +161,14 @@ struct vec4 {
     friend ostream& operator << (ostream& os, const vec4& v);
     friend istream& operator >> (istream& is, vec4& v);
 };
+
+
+//
+// Some geometrical functions involving vectors
+//
+
+// Check if point belong to a given segment
+bool belongs_to_segment(const vec2 & point, const vec2 & end_0,
+    const vec2 & end_1, const double precision);
 
 #endif
