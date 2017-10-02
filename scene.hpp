@@ -35,7 +35,7 @@ class Scene {
     int camera_index_;
 
     // Shader attributes
-    GLuint colour_, cam_transform_;
+    GLuint colour_, cam_transform_, local_transform_;
 
     // Grid (Maya-like)
     GLuint grid_buf_;
@@ -45,6 +45,16 @@ class Scene {
     // Model of camera
     vec3 camera_model_[48];
     vec4 camera_colour_;
+
+    // Transformation controllers
+    enum class Transformation {disabled, translation, scaling, rotation};
+    Transformation active_transform_;
+
+    vec3 move_controller_[6];       // Also used for drawing scale controller
+    vec3 rot_controller_[75];
+
+    GLuint rot_controller_buf_;
+    GLuint move_controller_buf_;
 
     // Mouse sensitivity
     GLfloat move_s;
@@ -62,14 +72,13 @@ public:
 
     // Default initiliser, need to prevent segmentation fault errors (GL
     // functions can't be called before GLUT is initialised)
-    void init(GLuint colour, GLuint cam_transform);
+    void init(GLuint colour, GLuint cam_transform, GLuint local_transform);
 
     // Add new object
     void add_object(const Mesh & G);
 
     // Add new object without calling copy constructor
-    void add_direct(const char *obj_file, const ColorScheme & colorscheme,
-        GLuint colour);
+    void add_direct(const char *obj_file, const ColorScheme & colorscheme);
 
     // Add new camera
     void add_camera(vec3 pos, vec3 rot);
@@ -107,11 +116,23 @@ public:
     // If camera was set by the index in cameras array it will be deleted
     void delete_active_camera();
 
+    void activate_translation();
+    void activate_scaling();
+    void activate_rotation();
+
+    void deactivate_transformation();
+    bool transformation_is_active();
+
+    void local_transform(int delta_x, int delta_y);
+
 private:
     void build_camera_model();
     void build_grid();
+    void build_move_controller();
+    void build_rot_controller();
     void draw_grid();
     void draw_cameras();
+    void draw_active_controller();
     void use_camera(Camera cam);
 };
 

@@ -32,14 +32,13 @@ class Mesh {
     // Array of colors, used as color scheme
     ColorScheme colorscheme_;
 
-    // Check wheter to render vertex normals, face normals, bounding box
+    // Check wheter to render: vertex normals, face normals, bounding box
     bool draw_mode_[3];
 
     // Main vertex buffer: faces, bounding box and vertex normals
     GLuint mesh_vbo_;
 
-    // Local transformation: 0 - position, 1 - rotation
-    vec3 transform_[2];
+    GLuint local_transform_;
 
     //
     // Private functions
@@ -52,6 +51,12 @@ class Mesh {
     void set_main_buffer();
 
 public:
+
+    // Local transformation: 0 - position, 1 - rotation, 2 - scaling
+    vec3 transform[3];
+    // Pivot, intialised as geometric center at the beginning
+    vec3 pivot;
+
 
     Mesh();
 
@@ -66,7 +71,7 @@ public:
     // Set colorscheme defined in colorscheme.hpp
     void set_colorscheme(const ColorScheme & colorscheme);
 
-    void set_attributes(GLuint color_location);
+    void set_attributes(GLuint color_location, GLuint local_transform);
 
     // Render geometry
     void draw();
@@ -75,6 +80,8 @@ public:
     void toogle_vertex_normals();
     void toogle_face_normals();
     void toogle_bounding_box();
+
+    // Model transformation
 
     bool active;
 };

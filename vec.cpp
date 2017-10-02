@@ -108,10 +108,7 @@ const GLfloat vec2::operator [] (const unsigned int i) const
 // Input and output
 ostream& operator << (ostream& os, const vec2& v)
 {
-    if (os == cout)
-        return os << setprecision(2) << setw(6) << v.x << setw(6) << v.y;
-    else
-        return os << v.x << v.y;
+    return os << v.x << v.y;
 }
 
 istream& operator >> (istream& is, vec2& v)
@@ -155,6 +152,11 @@ vec2 normalize(const vec2& v)
 vec3::vec3()
 {
     x = 0, y = 0, z = 0;
+}
+
+vec3::vec3(GLfloat s)
+{
+    x = s, y = s, z = s;
 }
 
 vec3::vec3(GLfloat a, GLfloat b, GLfloat c)
@@ -268,12 +270,7 @@ vec3 operator * (const vec3& u, const vec3& v)
 // Input and output
 ostream& operator << (ostream& os, const vec3& v)
 {
-    if (os == cout)
-        return os << setprecision(2) <<
-            setw(6) << v.x << setw(6) << v.y << setw(6) << v.z;
-    else
-        return os << v.x << v.y << v.z;
-
+    return os << v.x << v.y << v.z;
 }
 
 istream& operator >> (istream& is, vec3& v)
@@ -356,14 +353,8 @@ const GLfloat vec4::operator [] (const unsigned int i) const
 // Input and output operators
 ostream& operator << (ostream& os, const vec4& v)
 {
-    if (os == cout)
-        return os << setprecision(2) <<
-            setw(6) << v.x <<
-            setw(6) << v.y <<
-            setw(6) << v.z <<
-            setw(6) << v.w;
-    else
-        return os << v.x << v.y << v.z << v.w;
+
+    return os << v.x << v.y << v.z << v.w;
 }
 
 istream& operator >> (istream& is, vec4& v)

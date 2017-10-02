@@ -18,6 +18,11 @@ Mesh::Mesh()
     draw_mode_[0] = draw_mode_[1] = draw_mode_[2] = false;
     mesh_vbo_ = 0;
     active = true;
+    pivot = 0;
+    transform[0] = 0;
+    transform[1] = 0;
+    transform[2] = vec3(1);
+    local_transform_ = 0;
 }
 
 Mesh::Mesh(const Mesh& mesh)
@@ -30,6 +35,11 @@ Mesh::Mesh(const Mesh& mesh)
         draw_mode_[0] = draw_mode_[1] = draw_mode_[2] = false;
         mesh_vbo_ = 0;
         active = true;
+        pivot = 0;
+        transform[0] = 0;
+        transform[1] = 0;
+        transform[2] = vec3(1);
+        local_transform_ = 0;
         return;
     }
 
@@ -43,7 +53,6 @@ Mesh::Mesh(const Mesh& mesh)
     for (int i = 0; i < f_number_ * 3; i++)
         f_[i] = mesh.f_[i];
 
-
     if (mesh.vn_ != 0) {
         vn_ = new vec3[f_number_ * 6];
         for (int i = 0; i < f_number_ * 6; i++)
@@ -52,6 +61,11 @@ Mesh::Mesh(const Mesh& mesh)
         vn_ = 0;
 
     colour_ = mesh.colour_;
+    local_transform_ = mesh.local_transform_;
+
+    transform[0] = mesh.transform[0];
+    transform[1] = mesh.transform[1];
+    transform[2] = mesh.transform[2];
 
     set_colorscheme(mesh.colorscheme_);
 
@@ -76,9 +90,10 @@ void Mesh::set_colorscheme(const ColorScheme & colorscheme)
         colorscheme_[i] = colorscheme[i];
 }
 
-void Mesh::set_attributes(GLuint color_location)
+void Mesh::set_attributes(GLuint color_location, GLuint local_transform)
 {
     colour_ = color_location;
+    local_transform_ = local_transform;
 }
 
 void Mesh::load_file(const char* obj_file) {
@@ -160,7 +175,12 @@ void Mesh::load_file(const char* obj_file) {
             if (vertices[i][j] > box_limit[2 * j + 1])
                 box_limit[2 * j + 1] = vertices[i][j];
         }
+
+        // Calculating center
+        pivot += vertices[i];
     }
+
+    pivot /= vertices_number;
 
     build_box(box_limit);
 
@@ -234,7 +254,11 @@ void Mesh::draw() {
 
     // Drawing model
 
+    glUniform3fv(local_transform_, 3, (GLfloat*) & transform);
+
     if (!active) {
+        draw_mode_[0] = false, draw_mode_[1] = false, draw_mode_[2] = false;
+
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[8]);
         glDrawArrays(GL_TRIANGLES, 0, f_number_ * 3);
@@ -257,6 +281,9 @@ void Mesh::draw() {
         glDrawArrays(GL_LINES, f_number_ * 3, 24);
     }
 
+
+    vec3 null_transform[3] = { vec3(0), vec3(0), vec3(1) };
+    glUniform3fv(local_transform_, 3, (GLfloat*) & null_transform);
 }
 
 

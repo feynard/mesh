@@ -21,26 +21,12 @@ void Init(int argc, char **argv)
 
     Camera = glGetUniformLocation(program, "cam");
     Local  = glGetUniformLocation(program, "loc");
-    Colour  = glGetUniformLocation(program, "colour");
+    Colour = glGetUniformLocation(program, "colour");
 
-    my_scene.init(Colour, Camera);
+    my_scene.init(Colour, Camera, Local);
 
-/*
-    Mesh my_mesh;
-
-    my_mesh.load_file("obj_files/quad_sphere.obj");
-    my_mesh.set_colorscheme(solarized);
-    my_mesh.set_attributes(Color);
-*/
-
-    //my_scene.add_direct("tmp_1.obj", solarized, Color);
-    my_scene.add_direct("obj_files/banana.obj", solarized, Colour);
-    my_scene.add_direct("obj_files/ico.obj", solarized, Colour);
-    my_scene.add_direct("obj_files/cube.obj", solarized, Colour);
-
-
-//    my_scene.add_object(my_mesh);
-    my_scene.add_camera(vec3(0.3, 0.3, 0.0), vec3(pi/4, pi / 2, 0));
+//    my_scene.add_direct("obj_files/cube.obj", solarized);
+    my_scene.add_direct("obj_files/cube.obj", solarized);
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -68,7 +54,10 @@ const char * interface[] = {
     "Camera Zoom (Alt + RMB)",
     "Camera Roll (Ctrl + LMB)",
     "Delete Camera ('d')",
-    "Switch Between Objects ('9', '0')"
+    "Switch Between Objects ('9', '0')",
+    "Move ('w')",
+    "Scale ('e')",
+    "Rotate ('r')"
 };
 
 // Draw list of commands
@@ -105,8 +94,12 @@ bool ctrl_key;
 
 void keyboard(int key, int x, int y)
 {
-    if (key == 033)
-        exit(EXIT_SUCCESS);
+    if (key == 033) {
+        if (my_scene.transformation_is_active())
+            my_scene.deactivate_transformation();
+        else
+            exit(EXIT_SUCCESS);
+    }
 
     if (key == 'v')
         my_scene.toogle_vertex_normals();
@@ -126,6 +119,12 @@ void keyboard(int key, int x, int y)
         my_scene.previous_object();
     if (key == '0')
         my_scene.next_object();
+    if (key == 'w')
+        my_scene.activate_translation();
+    if (key == 'e')
+        my_scene.activate_scaling();
+    if (key == 'r')
+        my_scene.activate_rotation();
 
     glutPostRedisplay();
 }
@@ -134,6 +133,8 @@ void keyboard(int key, int x, int y)
 bool left_button = false;
 bool right_button = false;
 bool middle_button = false;
+
+int axis;
 
 int x_prev, y_prev;             // Previous pointer's coordinates
 
@@ -152,7 +153,9 @@ void mouse(int button, int state, int x, int y)
             right_button = true;
         if (button == GLUT_MIDDLE_BUTTON)
             middle_button = true;
+
     } else {
+        axis = -1;
         left_button = false;
         right_button = false;
         middle_button = false;
@@ -179,6 +182,22 @@ void mouse_motion(int x, int y)
     // Camera move (scan move) in the main plane
     else if (alt_key && middle_button)
         my_scene.update_camera_move(delta_x, delta_y);
+    // Transformation handler
+    else if (my_scene.transformation_is_active() && left_button) {
+        if (axis == -1) {
+            if (abs(delta_x) > abs(delta_y)) {
+                axis = 0;
+                my_scene.local_transform(delta_x, 0);
+            } else {
+                axis = 1;
+                my_scene.local_transform(0, delta_y);
+            }
+        } else if (axis == 0)
+            my_scene.local_transform(delta_x, 0);
+        else if (axis == 1)
+            my_scene.local_transform(0, delta_y);
+
+    }
 
     glutPostRedisplay();
 }

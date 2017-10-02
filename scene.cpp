@@ -4,8 +4,10 @@ Scene::Scene()
 {
     build_grid();
     build_camera_model();
+    build_move_controller();
+    build_rot_controller();
 
-    camera_index_ = 0;
+    camera_index_ = -1;
     active_camera_ = Camera(vec3(0, 0, 0), vec3(0, 0, 0));
 
     object_index_ = 0;
@@ -16,6 +18,8 @@ Scene::Scene()
     move_s = 0.005;
     rot_s = 0.01;
     zoom_s = 0.01;
+
+    active_transform_ = Transformation::disabled;
 }
 
 Scene::~Scene()
@@ -24,10 +28,12 @@ Scene::~Scene()
         glDeleteBuffers(1, &cam_geo_.get_iterator());
 
     glDeleteBuffers(1, &grid_buf_);
+    glDeleteBuffers(1, &move_controller_buf_);
+    glDeleteBuffers(1, &rot_controller_buf_);
     glDeleteVertexArrays(1, &vao_);
 }
 
-void Scene::init(GLuint colour, GLuint cam_transform)
+void Scene::init(GLuint colour, GLuint cam_transform, GLuint local_transform)
 {
     glGenVertexArrays(1, &vao_);
     glBindVertexArray(vao_);
@@ -36,12 +42,22 @@ void Scene::init(GLuint colour, GLuint cam_transform)
     glBindBuffer(GL_ARRAY_BUFFER, grid_buf_);
     glBufferData(GL_ARRAY_BUFFER, 36 * sizeof(vec3), grid_, GL_STATIC_DRAW);
 
+    glGenBuffers(1, &move_controller_buf_);
+    glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
+    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(vec3), move_controller_,
+        GL_STATIC_DRAW);
+
+    glGenBuffers(1, &rot_controller_buf_);
+    glBindBuffer(GL_ARRAY_BUFFER, rot_controller_buf_);
+    glBufferData(GL_ARRAY_BUFFER, 75 * sizeof(vec3), rot_controller_,
+        GL_STATIC_DRAW);
+
     colour_ = colour;
     cam_transform_ = cam_transform;
+    local_transform_ = local_transform;
 }
 
-void Scene::add_direct(const char *obj_file, const ColorScheme & colorscheme,
-    GLuint colour)
+void Scene::add_direct(const char *obj_file, const ColorScheme & colorscheme)
 {
     Mesh new_mesh;
     objects_.push(new_mesh);
@@ -51,7 +67,7 @@ void Scene::add_direct(const char *obj_file, const ColorScheme & colorscheme,
 
     objects_.tail().load_file(obj_file);
     objects_.tail().set_colorscheme(colorscheme);
-    objects_.tail().set_attributes(colour);
+    objects_.tail().set_attributes(colour_, local_transform_);
 
     object_index_ = objects_.length() - 1;
     objects_[object_index_].active = true;
@@ -122,6 +138,7 @@ void Scene::draw() {
 
     draw_grid();
     draw_cameras();
+    draw_active_controller();
 }
 
 void Scene::toogle_vertex_normals()
@@ -316,6 +333,35 @@ void Scene::build_grid() {
     }
 }
 
+void Scene::build_move_controller()
+{
+    move_controller_[0] = vec3(0.0, 0.0, 0.0);
+    move_controller_[1] = vec3(0.3, 0.0, 0.0);
+
+    move_controller_[2] = vec3(0.0, 0.0, 0.0);
+    move_controller_[3] = vec3(0.0, 0.3, 0.0);
+
+    move_controller_[4] = vec3(0.0, 0.0, 0.0);
+    move_controller_[5] = vec3(0.0, 0.0, 0.3);
+}
+
+void Scene::build_rot_controller()
+{
+    unsigned int i = 0, n = 25;
+
+    // x-axis
+    for (double t = 0; t < 2 * pi; t += 2 * pi / n)
+        rot_controller_[i++] = 0.2 * vec3(0, cos(t), sin(t));
+
+    // y-axis
+    for (double t = 0; t < 2 * pi; t += 2 * pi / n)
+        rot_controller_[i++] = 0.2 * vec3(cos(t), 0, sin(t));
+
+    // z-axis
+    for (double t = 0; t < 2 * pi; t += 2 * pi / n)
+        rot_controller_[i++] = 0.2 * vec3(cos(t), sin(t), 0);
+}
+
 void Scene::draw_grid() {
     glUniform4fv(colour_, 1, (GLfloat*) &grid_colour_);
     glBindBuffer(GL_ARRAY_BUFFER, grid_buf_);
@@ -329,6 +375,100 @@ void Scene::draw_cameras() {
         glBindBuffer(GL_ARRAY_BUFFER, cam_geo_.get_iterator());
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glDrawArrays(GL_LINES, 0, 48);
+    }
+}
+
+void Scene::draw_active_controller()
+{
+    if (objects_.length() == 0 || active_transform_ == Transformation::disabled)
+        return;
+
+    // Translation
+    if (active_transform_ == Transformation::translation) {
+        vec3 center = objects_[object_index_].pivot;
+        vec4 tmp_colour;
+
+        glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glLineWidth(2);
+
+        glUniform3fv(local_transform_, 1, (GLfloat*) & center);
+
+        tmp_colour = vec4(1, 0, 0, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_LINES, 0, 2);
+
+        tmp_colour = vec4(0, 1, 0, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_LINES, 2, 2);
+
+        tmp_colour = vec4(0, 0, 1, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_LINES, 4, 2);
+
+        glLineWidth(1);
+    }
+
+    // Scaling
+    if (active_transform_ == Transformation::scaling) {
+        vec3 center = objects_[object_index_].pivot;
+        vec4 tmp_colour;
+
+        glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glLineWidth(2);
+        glPointSize(8);
+
+        glUniform3fv(local_transform_, 1, (GLfloat*) & center);
+
+        tmp_colour = vec4(1, 0, 0, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_POINTS, 1, 1);
+        glDrawArrays(GL_LINES, 0, 2);
+
+        tmp_colour = vec4(0, 1, 0, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_POINTS, 3, 1);
+        glDrawArrays(GL_LINES, 2, 2);
+
+        tmp_colour = vec4(0, 0, 1, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_POINTS, 5, 1);
+        glDrawArrays(GL_LINES, 4, 2);
+
+        glPointSize(1);
+        glLineWidth(1);
+    }
+
+    // Rotation
+    if (active_transform_ == Transformation::rotation) {
+        vec3 center = objects_[object_index_].pivot;
+        vec4 tmp_colour;
+
+        glBindBuffer(GL_ARRAY_BUFFER, rot_controller_buf_);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glLineWidth(2);
+        glPointSize(8);
+
+        glUniform3fv(local_transform_, 1, (GLfloat*) & center);
+
+        tmp_colour = vec4(1, 0, 0, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_LINE_LOOP, 0, 25);
+
+        tmp_colour = vec4(0, 1, 0, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_LINE_LOOP, 25, 25);
+
+        tmp_colour = vec4(0, 0, 1, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        glDrawArrays(GL_LINE_LOOP, 50, 25);
+
+        glPointSize(1);
+        glLineWidth(1);
     }
 }
 
@@ -364,4 +504,67 @@ void Scene::next_object()
         object_index_ = 0;
 
     objects_[object_index_].active = true;
+}
+
+void Scene::activate_translation()
+{
+    active_transform_ = Transformation::translation;
+}
+
+void Scene::activate_scaling()
+{
+    active_transform_ = Transformation::scaling;
+}
+
+void Scene::activate_rotation()
+{
+    active_transform_ = Transformation::rotation;
+}
+
+void Scene::deactivate_transformation()
+{
+    active_transform_ = Transformation::disabled;
+}
+
+bool Scene::transformation_is_active()
+{
+    if (active_transform_ == Transformation::disabled)
+        return false;
+    else
+        return true;
+}
+
+void Scene::local_transform(int delta_x, int delta_y)
+{
+    // Translating
+    if (active_transform_ == Transformation::translation) {
+
+        objects_[object_index_].transform[0][1] += move_s * delta_y;
+        objects_[object_index_].pivot[1] += move_s * delta_y;
+
+        double y_angle = active_camera_.t[1][1];
+
+        if ((y_angle >= 5 * pi / 4 && y_angle <= 2 * pi) ||
+            (y_angle <= pi / 4 && y_angle >= 0)) {
+
+            objects_[object_index_].transform[0][0] -= move_s * delta_x;
+            objects_[object_index_].pivot[0] -= move_s * delta_x;
+        } else {
+            objects_[object_index_].transform[0][2] -= move_s * delta_x;
+            objects_[object_index_].pivot[2] -= move_s * delta_x;
+        }
+    }
+
+    // Scaling
+    if (active_transform_ == Transformation::scaling) {
+
+        objects_[object_index_].transform[2][1] += move_s * delta_y;
+
+        if (active_camera_.t[1][1] >= 5 * pi / 4 ||
+            active_camera_.t[1][1] <= pi / 4) {
+            objects_[object_index_].transform[2][0] -= move_s * delta_x;
+        } else
+            objects_[object_index_].transform[2][2] -= move_s * delta_x;
+    }
+
 }

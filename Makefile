@@ -1,5 +1,5 @@
 CC = g++
-GCC_FLAGS = -Wall -pedantic -Wno-deprecated-declarations
+GCC_FLAGS = -Wall -pedantic -Wno-deprecated-declarations -std=c++11
 OPENGL_FLAG = -framework OpenGL
 GLUT_FRAMEWORK = -framework GLUT
 OBJECTS = main.o mesh.o shader_init.o vec.o mat.o scene.o
@@ -24,7 +24,7 @@ shader_init.o: shader_init.cpp graphics.hpp
 scene.o: scene.hpp scene.cpp list.hpp mesh.hpp graphics_root.hpp
 	$(CC) $(GCC_FLAGS) -c scene.cpp
 
-mesh.o: mesh.hpp mesh.cpp list.hpp graphics_root.hpp
+mesh.o: mesh.hpp mesh.cpp list.hpp graphics_root.hpp colorscheme.hpp
 	$(CC) $(GCC_FLAGS) -c mesh.cpp
 
 clean:
