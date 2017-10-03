@@ -140,7 +140,7 @@ private:
 
     // Translates object along the axis according to the speed of pointer
     void axis_transform(unsigned int axis, double delta_x, double delta_y);
-
+    bool uniform_scaling_ = true;
 
     void draw_grid();
     void draw_cameras();

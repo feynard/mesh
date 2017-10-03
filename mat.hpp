@@ -220,9 +220,4 @@ mat4 Translate(const GLfloat x, const GLfloat y, const GLfloat z);
 mat4 Translate(const vec3 & v);
 mat4 Translate(const vec4 & v);
 
-mat4 Frustum(
-    const GLfloat left, const GLfloat right,
-    const GLfloat bottom, const GLfloat top,
-    const GLfloat zNear, const GLfloat zFar);
-
 #endif

@@ -15,8 +15,8 @@ const char * interface[] = {
     "Delete Camera ('d')",
     "Switch Between Objects ('9', '0')",
     "Move ('w')",
-    "Scale ('e')",
-    "Rotate ('r')"
+    "Scale ('r')",
+    "Rotate ('e')"
 };
 
 // Draw list of commands

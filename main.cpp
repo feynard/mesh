@@ -89,9 +89,9 @@ void keyboard(int key, int x, int y)
         my_scene.next_object();
     if (key == 'w')
         my_scene.activate_translation();
-    if (key == 'e')
-        my_scene.activate_scaling();
     if (key == 'r')
+        my_scene.activate_scaling();
+    if (key == 'e')
         my_scene.activate_rotation();
 
     glutPostRedisplay();
@@ -151,30 +151,13 @@ void mouse_motion(int x, int y)
     else if (alt_key && middle_button)
         my_scene.update_camera_move(delta_x, delta_y);
     // Transformation handler
-    else if (my_scene.transformation_is_active() && left_button) {
+    else if (my_scene.transformation_is_active() && left_button)
         axis = my_scene.local_transform(
             axis,
             (double) -delta_x / 300,
             (double)  delta_y / 300,
             (-CurrentWidth + 2 * x) / (double) Width,
             (CurrentHeight - 2 * y) / (double) Height);
-
-        /*
-        if (axis == -1) {
-            if (abs(delta_x) > abs(delta_y)) {
-                axis = 0;
-                my_scene.local_transform(delta_x, 0, x - 150, 600 - y);
-            } else {
-                axis = 1;
-                my_scene.local_transform(0, delta_y, x - 150, 600 - y);
-            }
-        } else if (axis == 0)
-            my_scene.local_transform(delta_x, 0, x - 150, 600 - y);
-        else if (axis == 1)
-            my_scene.local_transform(0, delta_y, x - 150, 600 - y);
-        */
-
-    }
 
     glutPostRedisplay();
 }

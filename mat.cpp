@@ -489,20 +489,3 @@ mat4 Translate(const vec4 & v)
 {
     return Translate(v.x, v.y, v.z);
 }
-
-mat4 Frustum(
-    const GLfloat left, const GLfloat right,
-    const GLfloat bottom, const GLfloat top,
-    const GLfloat zNear, const GLfloat zFar)
-{
-    mat4 c;
-    c[0][0] = 2.0*zNear/(right - left);
-    c[0][2] = (right + left)/(right - left);
-    c[1][1] = 2.0*zNear/(top - bottom);
-    c[1][2] = (top + bottom)/(top - bottom);
-    c[2][2] = -(zFar + zNear)/(zFar - zNear);
-    c[2][3] = -2.0*zFar*zNear/(zFar - zNear);
-    c[3][2] = -1.0;
-    c[3][3] = 0.0;
-    return c;
-}
