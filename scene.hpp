@@ -11,19 +11,14 @@ class Scene {
 
     // Inner camera structure for holding transformations
     struct Camera {
-        Camera() {
-            t[0] = 0, t[1] = 0;
-        }
-
-        Camera(vec3 pos, vec3 rot) {
-            t[0] = pos, t[1] = rot;
-        }
+        Camera() { t[0] = 0, t[1] = 0; }
+        Camera(vec3 pos, vec3 rot) { t[0] = pos, t[1] = rot; }
 
         // 0 - position, 1 - rotation
         vec3 t[2];
     };
 
-    List <Mesh> objects_;       // Main geometry of a scene: .obj files, etc.
+    List <Mesh> objects_;       // Main geometry of a scene, that is .obj files
     List <Camera> cameras_;     // All the cameras
     List <GLuint> cam_geo_;     // Geometry buffers of all the cameras
 
@@ -49,12 +44,13 @@ class Scene {
     // Transformation controllers
     enum class Transformation {disabled, translation, scaling, rotation};
     Transformation active_transform_;
+    bool uniform_scaling_;
 
-    vec3 move_controller_[6];       // Also used for drawing scale controller
+    vec3 move_controller_[6];       // Also used for drawing scaling controller
     vec3 rot_controller_[75];
 
+    GLuint move_controller_buf_;    // Again, used also for scaling controller
     GLuint rot_controller_buf_;
-    GLuint move_controller_buf_;
 
     // Mouse sensitivity
     GLfloat move_s;
@@ -116,14 +112,17 @@ public:
     // If camera was set by the index in cameras array it will be deleted
     void delete_active_camera();
 
+    // Transformation setters
     void activate_translation();
     void activate_scaling();
     void activate_rotation();
 
     void deactivate_transformation();
+
+    // Check if there is some transfomration in use now
     bool transformation_is_active();
 
-    // Delta's are pointer speed parameters, x and y are screen coordinates,
+    // Deltas are pointer speed parameters, x and y are screen coordinates,
     // that is normalised to be in interval [-1, 1], right bottom corner of a
     // viewport corresponds to (-1, -1)
     int local_transform(int axis, double delta_x, double delta_y,
@@ -140,12 +139,13 @@ private:
 
     // Translates object along the axis according to the speed of pointer
     void axis_transform(unsigned int axis, double delta_x, double delta_y);
-    bool uniform_scaling_ = true;
 
+    // Drawing functions
     void draw_grid();
     void draw_cameras();
     void draw_active_controller();
 
+    // Send camera transfomration
     void use_camera(Camera cam);
 };
 

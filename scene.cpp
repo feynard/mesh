@@ -19,6 +19,7 @@ Scene::Scene()
     rot_s = 0.01;
     zoom_s = 0.01;
 
+    uniform_scaling_ = true;
     active_transform_ = Transformation::disabled;
 }
 
@@ -527,10 +528,7 @@ void Scene::deactivate_transformation()
 
 bool Scene::transformation_is_active()
 {
-    if (active_transform_ == Transformation::disabled)
-        return false;
-    else
-        return true;
+    return (active_transform_ == Transformation::disabled) ? false : true;
 }
 
 vec2 Scene::camera_plane_projection(vec3 point)
@@ -548,11 +546,14 @@ void Scene::axis_transform(unsigned int axis, double delta_x, double delta_y)
 
     if (uniform_scaling_ && active_transform_ == Transformation::scaling) {
         t = mat4(
-            delta_x + delta_y, 0, 0, 0,
-            0, delta_x + delta_y, 0, 0,
-            0, 0, delta_x + delta_y, 0,
+            1 + delta_x + delta_y, 0, 0, 0,
+            0, 1 + delta_x + delta_y, 0, 0,
+            0, 0, 1 + delta_x + delta_y, 0,
             0, 0, 0, 1
         );
+
+        t = Translate(objects_[object_index_].pivot) *
+            t * Translate(-objects_[object_index_].pivot);
 
         objects_[object_index_].transformation =
             t * objects_[object_index_].transformation;
@@ -572,6 +573,9 @@ void Scene::axis_transform(unsigned int axis, double delta_x, double delta_y)
                 t = RotZ(delta_x + delta_y);
                 break;
         }
+
+        t = Translate(objects_[object_index_].pivot) *
+            t * Translate(-objects_[object_index_].pivot);
 
         objects_[object_index_].transformation =
             t * objects_[object_index_].transformation;

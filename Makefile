@@ -1,11 +1,19 @@
-CC = g++
-GCC_FLAGS = -Wall -pedantic -Wno-deprecated-declarations -std=c++11
+OS := $(shell uname)
+
+ifeq ($(OS), Darwin)
 OPENGL_FLAG = -framework OpenGL
 GLUT_FRAMEWORK = -framework GLUT
+else ifeq ($(OS), Linux)
+OPENGL_FLAG = -lGL
+GLUT_FRAMEWORK = -lglut
+endif
+
+CC = g++
+GCC_FLAGS = -Wall -pedantic -Wno-deprecated-declarations -std=c++11
 OBJECTS = main.o mesh.o shader_init.o vec.o mat.o scene.o text_interface.o
 
 program: $(OBJECTS)
-	$(CC) $(GCC_FLAGS) $(OPENGL_FLAG) $(GLUT_FRAMEWORK) $(OBJECTS) -o program
+	$(CC) $(GCC_FLAGS) $(OBJECTS) -o program $(OPENGL_FLAG) $(GLUT_FRAMEWORK)
 
 main.o: main.cpp graphics.hpp
 	$(CC) $(GCC_FLAGS) -c main.cpp

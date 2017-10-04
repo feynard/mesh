@@ -56,7 +56,6 @@ public:
     vec3 pivot;
     mat4 transformation;
 
-
     Mesh();
 
     // Note: this method creates new buffer object

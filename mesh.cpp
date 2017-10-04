@@ -20,6 +20,7 @@ Mesh::Mesh()
     active = true;
     local_transform_ = 0;
     transformation = mat4(1);
+    pivot = 0;
 }
 
 Mesh::Mesh(const Mesh& mesh)
@@ -34,6 +35,7 @@ Mesh::Mesh(const Mesh& mesh)
         active = true;
         local_transform_ = 0;
         transformation = mat4(1);
+        pivot = 0;
         return;
     }
 
@@ -146,6 +148,9 @@ void Mesh::load_file(const char* obj_file) {
                 normals_indeces.push(n_triplet);
             }
         }
+
+
+    pivot = vec3(0.2, 0.2, 0.2);
 
     // x_min, x_max, y_min, y_max, z_min, z_max
     GLfloat box_limit[6];
