@@ -8,6 +8,7 @@
 #include "colorscheme.hpp"
 #include "graphics_root.hpp"
 #include "vec.hpp"
+#include "mat.hpp"
 #include "list.hpp"
 
 class Mesh {
@@ -52,10 +53,8 @@ class Mesh {
 
 public:
 
-    // Local transformation: 0 - position, 1 - rotation, 2 - scaling
-    vec3 transform[3];
-    // Pivot, intialised as geometric center at the beginning
     vec3 pivot;
+    mat4 transformation;
 
 
     Mesh();

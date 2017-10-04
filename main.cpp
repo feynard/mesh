@@ -21,13 +21,12 @@ void Init(int argc, char **argv)
     GLuint loc = glGetAttribLocation(program, "vertex_position");
 
     Camera = glGetUniformLocation(program, "cam");
-    Local  = glGetUniformLocation(program, "loc");
+    Local  = glGetUniformLocation(program, "local_transformation");
     Colour = glGetUniformLocation(program, "colour");
 
     my_scene.init(Colour, Camera, Local);
 
     my_scene.add_direct("obj_files/cube.obj", solarized);
-    my_scene.add_direct("obj_files/ico.obj", solarized);
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));

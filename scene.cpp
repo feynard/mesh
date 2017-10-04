@@ -383,17 +383,18 @@ void Scene::draw_active_controller()
     if (objects_.length() == 0 || active_transform_ == Transformation::disabled)
         return;
 
+    mat4 pivot_transform = Translate(objects_[object_index_].pivot);
+
+    glUniformMatrix4fv(local_transform_, 1, true, (GLfloat*) & pivot_transform);
+
     // Translation
     if (active_transform_ == Transformation::translation) {
-        vec3 center = objects_[object_index_].pivot;
         vec4 tmp_colour;
 
         glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
         glLineWidth(2);
-
-        glUniform3fv(local_transform_, 1, (GLfloat*) & center);
 
         tmp_colour = vec4(1, 0, 0, 1);
         glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
@@ -412,7 +413,6 @@ void Scene::draw_active_controller()
 
     // Scaling
     if (active_transform_ == Transformation::scaling) {
-        vec3 center = objects_[object_index_].pivot;
         vec4 tmp_colour;
 
         glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
@@ -420,8 +420,6 @@ void Scene::draw_active_controller()
 
         glLineWidth(2);
         glPointSize(8);
-
-        glUniform3fv(local_transform_, 1, (GLfloat*) & center);
 
         tmp_colour = vec4(1, 0, 0, 1);
         glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
@@ -448,7 +446,6 @@ void Scene::draw_active_controller()
 
     // Rotation
     if (active_transform_ == Transformation::rotation) {
-        vec3 center = objects_[object_index_].pivot;
         vec4 tmp_colour;
 
         glBindBuffer(GL_ARRAY_BUFFER, rot_controller_buf_);
@@ -456,8 +453,6 @@ void Scene::draw_active_controller()
 
         glLineWidth(2);
         glPointSize(8);
-
-        glUniform3fv(local_transform_, 1, (GLfloat*) & center);
 
         tmp_colour = vec4(1, 0, 0, 1);
         glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
@@ -547,12 +542,43 @@ vec2 Scene::camera_plane_projection(vec3 point)
 
 void Scene::axis_transform(unsigned int axis, double delta_x, double delta_y)
 {
+    mat4 t;
+
+//    current_object.transformation = t * current_object.transformation;
+
     if (uniform_scaling_ && active_transform_ == Transformation::scaling) {
-        objects_[object_index_].transform[2][0] += (delta_x + delta_y);
-        objects_[object_index_].transform[2][1] += (delta_x + delta_y);
-        objects_[object_index_].transform[2][2] += (delta_x + delta_y);
+        t = mat4(
+            delta_x + delta_y, 0, 0, 0,
+            0, delta_x + delta_y, 0, 0,
+            0, 0, delta_x + delta_y, 0,
+            0, 0, 0, 1
+        );
+
+        objects_[object_index_].transformation =
+            t * objects_[object_index_].transformation;
         return;
     }
+
+
+    if (active_transform_ == Transformation::rotation) {
+        switch (axis) {
+            case 0:
+                t = RotX(delta_x + delta_y);
+                break;
+            case 1:
+                t = RotY(delta_x + delta_y);
+                break;
+            case 2:
+                t = RotZ(delta_x + delta_y);
+                break;
+        }
+
+        objects_[object_index_].transformation =
+            t * objects_[object_index_].transformation;
+
+        return;
+    }
+
 
     vec2 p = camera_plane_projection(objects_[object_index_].pivot);
 
@@ -578,10 +604,26 @@ void Scene::axis_transform(unsigned int axis, double delta_x, double delta_y)
     double d_axis = delta_plane / sqrt(1 - C * C);
 
     if (active_transform_ == Transformation::translation) {
-        objects_[object_index_].transform[0][axis] += d_axis;
-        objects_[object_index_].pivot[axis] += d_axis;
-    } else if (active_transform_ == Transformation::scaling)
-        objects_[object_index_].transform[2][axis] += d_axis;
+        switch (axis) {
+            case 0:
+                objects_[object_index_].pivot.x += d_axis;
+                t = Translate(d_axis, 0, 0);
+                break;
+            case 1:
+                objects_[object_index_].pivot.y += d_axis;
+                t = Translate(0, d_axis, 0);
+                break;
+            case 2:
+                objects_[object_index_].pivot.z += d_axis;
+                t = Translate(0, 0, d_axis);
+                break;
+        }
+
+        objects_[object_index_].transformation =
+            t * objects_[object_index_].transformation;
+    }
+    // else if (active_transform_ == Transformation::scaling)
+    //    objects_[object_index_].transform[2][axis] += d_axis;
 }
 
 int Scene::local_transform(int axis, double delta_x, double delta_y,
@@ -595,14 +637,16 @@ int Scene::local_transform(int axis, double delta_x, double delta_y,
         // Check if currently there is nothing to transform
         if (axis == -1) {
             // Find projections to the camera plane
-            vec2 p = camera_plane_projection(objects_[object_index_].pivot);
+            vec2 p = camera_plane_projection(
+                objects_[object_index_].pivot);
             vec2 end_p;
 
             uniform_scaling_ = true;
 
             // Check "closest" axis
             for (int i = 0; i < 3; i++) {
-                end_p = camera_plane_projection(objects_[object_index_].pivot +
+                end_p = camera_plane_projection(
+                    objects_[object_index_].pivot +
                     move_controller_[2 * i + 1]);
 
                 if (length(end_p - p) <= 0.05 && i == 2) {
@@ -621,11 +665,45 @@ int Scene::local_transform(int axis, double delta_x, double delta_y,
             if (active_transform_ == Transformation::scaling)
                 for (int i = 0; i < 3; i++) {
                     end_p =
-                        camera_plane_projection(objects_[object_index_].pivot +
-                        move_controller_[2 * i + 1]);
+                        camera_plane_projection(
+                            objects_[object_index_].pivot +
+                            move_controller_[2 * i + 1]);
 
                     if (!belongs_to_segment(vec2(x, y), p, end_p, 0.05)) {
                         uniform_scaling_ = false;
+                        break;
+                    }
+                }
+        }
+
+        if (axis == -1)
+            return -1;
+
+        axis_transform(axis, delta_x, delta_y);
+
+        return axis;
+    }
+
+    // Rotation
+    if (active_transform_ == Transformation::rotation) {
+
+        if (axis == -1) {
+            // Find projections to the camera plane
+            vec2 p;
+
+            uniform_scaling_ = true;
+
+            // Check "closest" axis
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 25; j++) {
+                    p = camera_plane_projection(
+                        objects_[object_index_].pivot +
+                        rot_controller_[i * 25 + j]);
+
+                    if (sqrt(dot(p -  vec2(x, y), p - vec2(x, y))) <= 0.05) {
+                        axis = i;
+                        axis_transform(axis, delta_x, delta_y);
+                        return axis;
                         break;
                     }
                 }

@@ -3,9 +3,8 @@ attribute vec4 vertex_position;
 // Camera transformation: cam[0] - position, cam[1] - rotation
 uniform vec3 cam[2];
 
-// Local transformation: loc[0] - position, loc[1] - rotation, loc[2] - scaling
-uniform vec3 loc[3];
-
+uniform vec3 pivot;
+uniform mat4 local_transformation;
 
 float pi = 3.14159265358979323846;
 
@@ -14,8 +13,6 @@ void main() {
     //
     // Camera transformation
     //
-
-    // Rotations
 
     float C;
     float S;
@@ -57,31 +54,7 @@ void main() {
     );
 
     // Resulting matrix
-
     mat4 cam_transformation = Rz * Rx * Ry * T;
 
-    //
-    // Local transformation
-    //
-
-    mat4 local_transformation;
-
-    mat4 Translate = mat4(
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0, 0.0,
-        loc[0][0], loc[0][1], loc[0][2], 1.0
-    );
-
-    mat4 Scale = mat4(
-        loc[2][0],       0.0,       0.0, 0.0,
-              0.0, loc[2][1],       0.0, 0.0,
-              0.0,       0.0, loc[2][2], 0.0,
-              0.0,       0.0,       0.0, 1.0
-    );
-
-    local_transformation = Translate * Scale;
-
     gl_Position = cam_transformation * local_transformation * vertex_position;
-
 }

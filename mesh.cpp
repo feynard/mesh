@@ -18,11 +18,8 @@ Mesh::Mesh()
     draw_mode_[0] = draw_mode_[1] = draw_mode_[2] = false;
     mesh_vbo_ = 0;
     active = true;
-    pivot = 0;
-    transform[0] = 0;
-    transform[1] = 0;
-    transform[2] = vec3(1);
     local_transform_ = 0;
+    transformation = mat4(1);
 }
 
 Mesh::Mesh(const Mesh& mesh)
@@ -35,11 +32,8 @@ Mesh::Mesh(const Mesh& mesh)
         draw_mode_[0] = draw_mode_[1] = draw_mode_[2] = false;
         mesh_vbo_ = 0;
         active = true;
-        pivot = 0;
-        transform[0] = 0;
-        transform[1] = 0;
-        transform[2] = vec3(1);
         local_transform_ = 0;
+        transformation = mat4(1);
         return;
     }
 
@@ -63,9 +57,7 @@ Mesh::Mesh(const Mesh& mesh)
     colour_ = mesh.colour_;
     local_transform_ = mesh.local_transform_;
 
-    transform[0] = mesh.transform[0];
-    transform[1] = mesh.transform[1];
-    transform[2] = mesh.transform[2];
+    transformation = mesh.transformation;
 
     set_colorscheme(mesh.colorscheme_);
 
@@ -175,12 +167,7 @@ void Mesh::load_file(const char* obj_file) {
             if (vertices[i][j] > box_limit[2 * j + 1])
                 box_limit[2 * j + 1] = vertices[i][j];
         }
-
-        // Calculating center
-        pivot += vertices[i];
     }
-
-    pivot /= vertices_number;
 
     build_box(box_limit);
 
@@ -251,11 +238,11 @@ void Mesh::set_main_buffer()
 void Mesh::draw() {
     glBindBuffer(GL_ARRAY_BUFFER, mesh_vbo_);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    vec3 null_transform[3] = { vec3(0), vec3(0), vec3(1) };
+    mat4 id(1);
 
     // Drawing model
 
-    glUniform3fv(local_transform_, 3, (GLfloat*) & transform);
+    glUniformMatrix4fv(local_transform_, 1, true ,(GLfloat*) & transformation);
 
     if (!active) {
         draw_mode_[0] = false, draw_mode_[1] = false, draw_mode_[2] = false;
@@ -263,7 +250,7 @@ void Mesh::draw() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[8]);
         glDrawArrays(GL_TRIANGLES, 0, f_number_ * 3);
-        glUniform3fv(local_transform_, 3, (GLfloat*) & null_transform);
+        glUniformMatrix4fv(local_transform_, 1, true ,(GLfloat*) & id);
         return;
     }
 
@@ -283,7 +270,7 @@ void Mesh::draw() {
         glDrawArrays(GL_LINES, f_number_ * 3, 24);
     }
 
-    glUniform3fv(local_transform_, 3, (GLfloat*) & null_transform);
+    glUniformMatrix4fv(local_transform_, 1, true ,(GLfloat*) & id);
 }
 
 
