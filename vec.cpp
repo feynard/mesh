@@ -378,7 +378,7 @@ bool belongs_to_segment(const vec2 & point, const vec2 & end_0,
     vec2 step = (end_1 - end_0) / n;
     vec2 current;
 
-    for (int i = 0; i < n; i++, current = end_0 + i * step)
+    for (unsigned int i = 0; i < n; i++, current = end_0 + i * step)
         if (point.x <= current.x + precision &&
             point.x >= current.x - precision &&
             point.y <= current.y + precision &&

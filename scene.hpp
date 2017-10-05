@@ -42,9 +42,10 @@ class Scene {
     vec4 camera_colour_;
 
     // Transformation controllers
-    enum class Transformation {disabled, translation, scaling, rotation};
+    enum class Transformation {
+        disabled, translation, scaling, uniform_scaling, rotation};
+
     Transformation active_transform_;
-    bool uniform_scaling_;
 
     vec3 move_controller_[6];       // Also used for drawing scaling controller
     vec3 rot_controller_[75];

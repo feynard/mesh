@@ -489,3 +489,53 @@ mat4 Translate(const vec4 & v)
 {
     return Translate(v.x, v.y, v.z);
 }
+
+mat4 Scale(const GLfloat a)
+{
+    return mat4(
+        a, 0, 0, 0,
+        0, a, 0, 0,
+        0, 0, a, 0,
+        0, 0, 0, 1
+    );
+}
+
+mat4 ScaleX(const GLfloat a)
+{
+    return mat4(
+        a, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    );
+}
+
+mat4 ScaleY(const GLfloat a)
+{
+    return mat4(
+        1, 0, 0, 0,
+        0, a, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    );
+}
+
+mat4 ScaleZ(const GLfloat a)
+{
+    return mat4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, a, 0,
+        0, 0, 0, 1
+    );
+}
+
+mat4 Scale(const GLfloat a, const GLfloat b, const GLfloat c)
+{
+    return mat4(
+        a, 0, 0, 0,
+        0, b, 0, 0,
+        0, 0, c, 0,
+        0, 0, 0, 1
+    );
+}

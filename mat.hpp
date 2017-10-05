@@ -216,13 +216,14 @@ mat4 RotY(const GLfloat theta);
 mat4 RotZ(const GLfloat theta);
 
 // Scaling matrices
-// mat4 Scale(double a)     // uniform scale
-// mat4 ScaleX(double a)
-// mat4 ScaleY(double a)
-// mat4 ScaleZ(double a)
-//
-// mat4 Scale(double x, double y, double z)
-//
+mat4 Scale(const GLfloat a);        // Uniform scale
+
+mat4 ScaleX(const GLfloat a);
+mat4 ScaleY(const GLfloat a);
+mat4 ScaleZ(const GLfloat a);
+
+mat4 Scale(const GLfloat a, const GLfloat b, const GLfloat c);
+
 
 // Uniform translation matrix
 mat4 Translate(const GLfloat x, const GLfloat y, const GLfloat z);

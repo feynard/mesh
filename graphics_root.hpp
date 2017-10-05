@@ -3,17 +3,15 @@
 
 // macOS OpenGL
 #ifdef __APPLE__
-#include <OpenGL/gl.h>
-#define glGenVertexArrays glGenVertexArraysAPPLE
-#define glBindVertexArray glBindVertexArrayAPPLE
-#define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+    #include <OpenGL/gl.h>
+    #define glGenVertexArrays glGenVertexArraysAPPLE
+    #define glBindVertexArray glBindVertexArrayAPPLE
+    #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
+#elif __linux
+    #define GL_GLEXT_PROTOTYPES
+    #include <GL/gl.h>
 #else
-#include <GL/gl.h>
-#endif
-
-// At least for Ubuntu this macro is mandatory
-#ifdef __linux__
-#define GL_GLEXT_PROTOTYPES
+    #define GL_GLEXT_PROTOTYPES
 #endif
 
 // Constants

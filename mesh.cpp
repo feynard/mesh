@@ -149,9 +149,6 @@ void Mesh::load_file(const char* obj_file) {
             }
         }
 
-
-    pivot = vec3(0.2, 0.2, 0.2);
-
     // x_min, x_max, y_min, y_max, z_min, z_max
     GLfloat box_limit[6];
     for (int i = 0; i < 3; i++) {
@@ -162,8 +159,11 @@ void Mesh::load_file(const char* obj_file) {
     // Array of vertices
     vertices_number = vertices_list.length();
     vertices = new vec3[vertices_number];
-    for (int i = 0; i < vertices_number; i++) {
+    for (unsigned int i = 0; i < vertices_number; i++) {
         vertices[i] = vertices_list.pop_head();
+
+        // Center of a model
+        pivot += vertices[i];
 
         // Check bounding box limits
         for (int j = 0; j < 3; j++) {
@@ -174,12 +174,15 @@ void Mesh::load_file(const char* obj_file) {
         }
     }
 
+    // Calculating center of a model
+    pivot /= vertices_number;
+
     build_box(box_limit);
 
     // Array of vertex normals
     normals_number = normals_list.length();
     normals = new vec3[normals_number];
-    for (int i = 0; i < normals_number; i++)
+    for (unsigned int i = 0; i < normals_number; i++)
         normals[i] = normals_list.pop_head();
 
     f_number_ = faces_indeces.length();

@@ -26,7 +26,7 @@ void Init(int argc, char **argv)
 
     my_scene.init(Colour, Camera, Local);
 
-    my_scene.add_direct("obj_files/cube.obj", solarized);
+    my_scene.add_direct("obj_files/banana.obj", solarized);
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -59,7 +59,7 @@ void reshape(GLsizei w, GLsizei h)
 bool alt_key;
 bool ctrl_key;
 
-void keyboard(int key, int x, int y)
+void keyboard(unsigned char key, int x, int y)
 {
     if (key == 033) {
         if (my_scene.transformation_is_active())
@@ -170,7 +170,7 @@ int main(int argc, char **argv)
     glutCreateWindow("Mesh");
 
     glutDisplayFunc(display);
-    glutSpecialFunc(keyboard);
+    glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
     glutMouseFunc(mouse);
     glutMotionFunc(mouse_motion);

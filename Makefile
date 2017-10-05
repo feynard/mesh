@@ -1,16 +1,21 @@
+# Main Flags
+CC = g++
+GCC_FLAGS = -Wall -Werror -pedantic -std=c++11
+OBJECTS = main.o mesh.o shader_init.o vec.o mat.o scene.o text_interface.o
+
+# OS check
 OS := $(shell uname)
 
 ifeq ($(OS), Darwin)
 OPENGL_FLAG = -framework OpenGL
 GLUT_FRAMEWORK = -framework GLUT
+GCC_FLAGS += -Wno-deprecated-declarations
 else ifeq ($(OS), Linux)
 OPENGL_FLAG = -lGL
 GLUT_FRAMEWORK = -lglut
 endif
 
-CC = g++
-GCC_FLAGS = -Wall -pedantic -Wno-deprecated-declarations -std=c++11
-OBJECTS = main.o mesh.o shader_init.o vec.o mat.o scene.o text_interface.o
+# Targets
 
 program: $(OBJECTS)
 	$(CC) $(GCC_FLAGS) $(OBJECTS) -o program $(OPENGL_FLAG) $(GLUT_FRAMEWORK)
@@ -35,7 +40,8 @@ text_interface.o: text_interface.cpp graphics.hpp
 scene.o: scene.hpp scene.cpp list.hpp mesh.hpp graphics_root.hpp
 	$(CC) $(GCC_FLAGS) -c scene.cpp
 
-mesh.o: mesh.hpp mesh.cpp list.hpp graphics_root.hpp colorscheme.hpp
+mesh.o: mesh.hpp mesh.cpp list.hpp mat.hpp vec.hpp graphics_root.hpp \
+	colorscheme.hpp
 	$(CC) $(GCC_FLAGS) -c mesh.cpp
 
 clean:

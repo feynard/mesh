@@ -1,4 +1,5 @@
 #include "graphics.hpp"
+#include <cstring>
 
 // Interface commands list
 const char * interface[] = {
@@ -26,9 +27,9 @@ void DrawInterface(GLuint color_location)
 
     int x = 5, y = 5;
 
-    for (int i = 0; i < sizeof(interface) / sizeof(char*); i++) {
+    for (unsigned int i = 0; i < sizeof(interface) / sizeof(char*); i++) {
         glWindowPos2i(x, y + i * 18);
-        for (int j = 0; j < strlen(interface[i]); j++)
+        for (unsigned int j = 0; j < strlen(interface[i]); j++)
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, interface[i][j]);
     }
 }

@@ -21,7 +21,7 @@ private:
     Node* root_;        // Head of a list
     Node* tail_;        // Pointer to the tail of a list
     Node* current_;     // Inner iterator
-    int n_;             // Number of elements
+    unsigned int n_;             // Number of elements
 
 public:
 
@@ -255,10 +255,10 @@ void List<D>::remove_by_index(unsigned int i)
         return;
 
     n_--;
-    Node *p = root_, *previous;
+    Node *p = root_;
 
-    for (int j = 0; j < i; j++)
-        previous = p, p = p -> next;
+    for (unsigned int j = 0; j < i; j++)
+        p = p -> next;
 
     if (p == root_ && p != tail_) {
         root_ = root_ -> next;
@@ -335,7 +335,7 @@ template <class D>
 D & List<D>::operator [] (unsigned int i)
 {
     Node *p = root_;
-    for (int j = 0; j < i; j++)
+    for (unsigned int j = 0; j < i; j++)
         p = p -> next;
 
     return p -> var;
