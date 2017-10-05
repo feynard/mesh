@@ -44,7 +44,7 @@ void Scene::init(GLuint colour, GLuint cam_transform, GLuint local_transform)
 
     glGenBuffers(1, &move_controller_buf_);
     glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(vec3), move_controller_,
+    glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(vec3), move_controller_,
         GL_STATIC_DRAW);
 
     glGenBuffers(1, &rot_controller_buf_);
@@ -343,6 +343,25 @@ void Scene::build_move_controller()
 
     move_controller_[4] = vec3(0.0, 0.0, 0.0);
     move_controller_[5] = vec3(0.0, 0.0, 0.3);
+
+    // x - arrow
+    move_controller_[6] = vec3(0.25,  0.00,  0.02);
+    move_controller_[7] = vec3(0.25,  0.00, -0.02);
+    move_controller_[8] = vec3(0.25,  0.02,  0.00);
+    move_controller_[9] = vec3(0.25, -0.02,  0.00);
+
+    // y - arrow
+    move_controller_[10] = vec3( 0.00, 0.25,  0.02);
+    move_controller_[11] = vec3( 0.00, 0.25, -0.02);
+    move_controller_[12] = vec3( 0.02, 0.25,  0.00);
+    move_controller_[13] = vec3(-0.02, 0.25,  0.00);
+
+    // z - arrow
+    move_controller_[14] = vec3( 0.00,  0.02, 0.25);
+    move_controller_[15] = vec3( 0.00, -0.02, 0.25);
+    move_controller_[16] = vec3( 0.02,  0.00, 0.25);
+    move_controller_[17] = vec3(-0.02,  0.00, 0.25);
+
 }
 
 void Scene::build_rot_controller()
@@ -394,8 +413,6 @@ void Scene::draw_active_controller()
         glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-        glLineWidth(2);
-
         tmp_colour = vec4(1, 0, 0, 1);
         glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
         glDrawArrays(GL_LINES, 0, 2);
@@ -408,7 +425,42 @@ void Scene::draw_active_controller()
         glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
         glDrawArrays(GL_LINES, 4, 2);
 
-        glLineWidth(1);
+        // Drawing arrows
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+        // x - axis
+        tmp_colour = vec4(1, 0, 0, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+
+        unsigned int x_arrow[12] = {
+            1, 6, 8, 1, 8, 7, 1, 7, 9, 1, 9, 6
+        };
+
+        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (GLvoid *) & x_arrow);
+
+        // y - axis
+        tmp_colour = vec4(0, 1, 0, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+
+        unsigned int y_arrow[12] = {
+            3, 10, 12, 3, 12, 11, 3, 11, 13, 3, 13, 10
+        };
+
+        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (GLvoid *) & y_arrow);
+
+        // z - axis
+        tmp_colour = vec4(0, 0, 1, 1);
+        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+
+        unsigned int z_arrow[12] = {
+            5, 14, 16, 5, 16, 15, 5, 15, 17, 5, 17, 14
+        };
+
+        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (GLvoid *) & z_arrow);
+
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     }
 
     // Scaling
@@ -420,7 +472,6 @@ void Scene::draw_active_controller()
         glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-        glLineWidth(2);
         glPointSize(8);
 
         tmp_colour = vec4(1, 0, 0, 1);
@@ -443,7 +494,6 @@ void Scene::draw_active_controller()
         glDrawArrays(GL_POINTS, 0, 1);
 
         glPointSize(1);
-        glLineWidth(1);
     }
 
     // Rotation
@@ -452,9 +502,6 @@ void Scene::draw_active_controller()
 
         glBindBuffer(GL_ARRAY_BUFFER, rot_controller_buf_);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-        glLineWidth(2);
-        glPointSize(8);
 
         tmp_colour = vec4(1, 0, 0, 1);
         glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
@@ -467,9 +514,6 @@ void Scene::draw_active_controller()
         tmp_colour = vec4(0, 0, 1, 1);
         glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
         glDrawArrays(GL_LINE_LOOP, 50, 25);
-
-        glPointSize(1);
-        glLineWidth(1);
     }
 }
 
@@ -625,6 +669,11 @@ void Scene::axis_transform(unsigned int axis, double delta_x, double delta_y)
 
         t = Translate(objects_[object_index_].pivot) *
             t * Translate(-objects_[object_index_].pivot);
+
+        objects_[object_index_].transformation =
+            objects_[object_index_].transformation * t;
+
+        return;
     }
 
     objects_[object_index_].transformation =
@@ -665,7 +714,8 @@ int Scene::local_transform(int axis, double delta_x, double delta_y,
             }
 
             // Uniform scaling check
-            if (active_transform_ == Transformation::scaling) {
+            if (active_transform_ == Transformation::scaling ||
+                active_transform_ == Transformation::uniform_scaling) {
 
                 bool uniform_scaling = true;
 
@@ -683,6 +733,8 @@ int Scene::local_transform(int axis, double delta_x, double delta_y,
 
                 if (uniform_scaling)
                     active_transform_ = Transformation::uniform_scaling;
+                else
+                    active_transform_ = Transformation::scaling;
             }
         }
 

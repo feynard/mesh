@@ -26,7 +26,7 @@ void Init(int argc, char **argv)
 
     my_scene.init(Colour, Camera, Local);
 
-    my_scene.add_direct("obj_files/banana.obj", solarized);
+    my_scene.add_direct("obj_files/bunny.obj", solarized);
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));

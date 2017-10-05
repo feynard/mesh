@@ -47,7 +47,7 @@ class Scene {
 
     Transformation active_transform_;
 
-    vec3 move_controller_[6];       // Also used for drawing scaling controller
+    vec3 move_controller_[18];       // Also used for drawing scaling controller
     vec3 rot_controller_[75];
 
     GLuint move_controller_buf_;    // Again, used also for scaling controller
@@ -129,6 +129,7 @@ public:
     int local_transform(int axis, double delta_x, double delta_y,
         double x, double y);
 
+// Inner functions
 private:
     void build_camera_model();
     void build_grid();

@@ -56,10 +56,6 @@ public:
     // Delete the first element and return its copy, O(1)
     D pop_head();
 
-    // ???
-    // Delete a specific element, O(n)
-//    void remove(const D & x);
-
     // Removes i-th element
     void remove_by_index(unsigned int i);
 
@@ -211,42 +207,6 @@ D List<D>::pop_head()
     n_--;
     return tmp;
 }
-
-/*
-template <class D>
-void List<D>::remove(const D & x)
-{
-    Node *p = root_;
-
-    while (p) {
-        if (p -> var == x) {
-            if (p != root_ && p != tail_) {
-                p -> prev -> next = p -> next;
-                p -> next -> prev = p -> prev;
-                delete p;
-
-            } else if (p == root_) {
-                if (p -> next == 0) {
-                    delete root_;
-                    root_ = 0, tail_ = 0;
-                }
-
-                root_ = root_ -> next;
-                delete root_ -> prev;
-
-            } else if (p == tail_) {
-                tail_ = tail_ -> prev;
-                delete tail_ -> next;
-                tail_ -> next = 0;
-            }
-
-            n_--;
-        }
-
-        p = p -> next;
-    }
-}
-*/
 
 template <class D>
 void List<D>::remove_by_index(unsigned int i)
