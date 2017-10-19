@@ -28,7 +28,7 @@ class Mesh {
     // Shader attributes: color is used for rendering all the parts of
     // geometry, that is edges, normals and bounding box, transform_loc_
     // represents the location of local transform 4 by 4 matrix
-    GLuint colour_;
+    GLuint color_;
 
     // Array of colors, used as color scheme
     ColorScheme colorscheme_;

@@ -5,8 +5,8 @@ using namespace std;
 // Shader attributes:
 // Camera - camera transformations, array of two 3-vectors [pos, rot]
 // Local - same as camera, that is [local_pos, local_rot]
-// Colour - main fragment colour attribute
-GLuint Camera, Local, Colour;
+// Color - main fragment color attribute
+GLuint Camera, Local, Color;
 
 // Main graphics and geometry handler
 Scene my_scene;
@@ -20,13 +20,15 @@ void Init(int argc, char **argv)
     // Set shader attributes
     GLuint loc = glGetAttribLocation(program, "vertex_position");
 
-    Camera = glGetUniformLocation(program, "cam");
+    Camera = glGetUniformLocation(program, "camera");
     Local  = glGetUniformLocation(program, "local_transformation");
-    Colour = glGetUniformLocation(program, "colour");
+    Color = glGetUniformLocation(program, "color");
 
-    my_scene.init(Colour, Camera, Local);
+    my_scene.init(Color, Camera, Local);
 
-    my_scene.add_direct("obj_files/bunny.obj", solarized);
+    my_scene.add_direct("obj_files/teapot.obj", solarized);
+//    my_scene.add_camera(vec3(2, 2, 2), vec3(-pi/4, -pi/4, 0));
+
 
     glEnableVertexAttribArray(loc);
     glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
@@ -45,7 +47,7 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     my_scene.draw();
-    DrawInterface(Colour);
+    DrawInterface(Color);
     glutSwapBuffers();
 }
 
@@ -107,7 +109,7 @@ int x_prev, y_prev;             // Previous pointer's coordinates
 
 void mouse(int button, int state, int x, int y)
 {
-    glutGetModifiers() == GLUT_ACTIVE_ALT ? alt_key = true : alt_key = false;
+    glutGetModifiers() == GLUT_ACTIVE_ALT  ?  alt_key = true :  alt_key = false;
     glutGetModifiers() == GLUT_ACTIVE_CTRL ? ctrl_key = true : ctrl_key = false;
 
     if (state == GLUT_DOWN) {
@@ -156,7 +158,8 @@ void mouse_motion(int x, int y)
             (double) -delta_x / 300,
             (double)  delta_y / 300,
             (-CurrentWidth + 2 * x) / (double) Width,
-            (CurrentHeight - 2 * y) / (double) Height);
+            (CurrentHeight - 2 * y) / (double) Height
+        );
 
     glutPostRedisplay();
 }

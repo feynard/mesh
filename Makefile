@@ -1,18 +1,20 @@
 # Main Flags
+
 CC = g++
 GCC_FLAGS = -Wall -Werror -pedantic -std=c++11
 OBJECTS = main.o mesh.o shader_init.o vec.o mat.o scene.o text_interface.o
 
 # OS check
+
 OS := $(shell uname)
 
 ifeq ($(OS), Darwin)
-OPENGL_FLAG = -framework OpenGL
-GLUT_FRAMEWORK = -framework GLUT
-GCC_FLAGS += -Wno-deprecated-declarations
+	OPENGL_FLAG = -framework OpenGL
+	GLUT_FRAMEWORK = -framework GLUT
+	GCC_FLAGS += -Wno-deprecated-declarations
 else ifeq ($(OS), Linux)
-OPENGL_FLAG = -lGL
-GLUT_FRAMEWORK = -lglut
+	OPENGL_FLAG = -lGL
+	GLUT_FRAMEWORK = -lglut
 endif
 
 # Targets

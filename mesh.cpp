@@ -13,7 +13,7 @@ Mesh::Mesh()
 {
     f_ = vn_ = 0;
     f_number_ = 0;
-    colour_ = 0;
+    color_ = 0;
     set_colorscheme(solarized);
     draw_mode_[0] = draw_mode_[1] = draw_mode_[2] = false;
     mesh_vbo_ = 0;
@@ -28,7 +28,7 @@ Mesh::Mesh(const Mesh& mesh)
     if (f_ == 0) {
         f_ = vn_ = 0;
         f_number_ = 0;
-        colour_ = 0;
+        color_ = 0;
         set_colorscheme(solarized);
         draw_mode_[0] = draw_mode_[1] = draw_mode_[2] = false;
         mesh_vbo_ = 0;
@@ -56,7 +56,7 @@ Mesh::Mesh(const Mesh& mesh)
     } else
         vn_ = 0;
 
-    colour_ = mesh.colour_;
+    color_ = mesh.color_;
     local_transform_ = mesh.local_transform_;
 
     transformation = mesh.transformation;
@@ -86,7 +86,7 @@ void Mesh::set_colorscheme(const ColorScheme & colorscheme)
 
 void Mesh::set_attributes(GLuint color_location, GLuint local_transform)
 {
-    colour_ = color_location;
+    color_ = color_location;
     local_transform_ = local_transform;
 }
 
@@ -256,25 +256,25 @@ void Mesh::draw() {
         draw_mode_[0] = false, draw_mode_[1] = false, draw_mode_[2] = false;
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[8]);
+        glUniform4fv(color_, 1, (GLfloat*) & colorscheme_[8]);
         glDrawArrays(GL_TRIANGLES, 0, f_number_ * 3);
         glUniformMatrix4fv(local_transform_, 1, true ,(GLfloat*) & id);
         return;
     }
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[3]);
+    glUniform4fv(color_, 1, (GLfloat*) & colorscheme_[3]);
     glDrawArrays(GL_TRIANGLES, 0, f_number_ * 3);
 
     // Drawing vertex normals
     if (vn_ != 0 && draw_mode_[0] == true) {
-        glUniform4fv(colour_, 1, (GLfloat*) & colorscheme_[1]);
+        glUniform4fv(color_, 1, (GLfloat*) & colorscheme_[1]);
         glDrawArrays(GL_LINES, f_number_ * 3 + 24, f_number_ * 6);
     }
 
     // Drawing bounding box in model coordinates
     if (draw_mode_[2]) {
-        glUniform4fv(colour_, 1, (GLfloat*) &colorscheme_[7]);
+        glUniform4fv(color_, 1, (GLfloat*) &colorscheme_[7]);
         glDrawArrays(GL_LINES, f_number_ * 3, 24);
     }
 

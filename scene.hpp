@@ -30,16 +30,16 @@ class Scene {
     int camera_index_;
 
     // Shader attributes
-    GLuint colour_, cam_transform_, local_transform_;
+    GLuint color_, cam_transform_, local_transform_;
 
     // Grid (Maya-like)
     GLuint grid_buf_;
     vec3 grid_[36];
-    vec4 grid_colour_;
+    vec4 grid_color_;
 
     // Model of camera
     vec3 camera_model_[48];
-    vec4 camera_colour_;
+    vec4 camera_color_;
 
     // Transformation controllers
     enum class Transformation {
@@ -69,7 +69,7 @@ public:
 
     // Default initiliser, need to prevent segmentation fault errors (GL
     // functions can't be called before GLUT is initialised)
-    void init(GLuint colour, GLuint cam_transform, GLuint local_transform);
+    void init(GLuint color, GLuint cam_transform, GLuint local_transform);
 
     // Add new object
     void add_object(const Mesh & G);

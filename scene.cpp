@@ -12,8 +12,8 @@ Scene::Scene()
 
     object_index_ = 0;
 
-    grid_colour_ = vec4(42 / 255.0, 161 / 255.0, 152 / 255.0, 0.5);
-    camera_colour_ = vec4(133 / 255.0, 153 / 255.0, 0 / 255.0, 1.0);
+    grid_color_ = vec4(42 / 255.0, 161 / 255.0, 152 / 255.0, 0.5);
+    camera_color_ = vec4(133 / 255.0, 153 / 255.0, 0 / 255.0, 1.0);
 
     move_s = 0.005;
     rot_s = 0.01;
@@ -33,7 +33,7 @@ Scene::~Scene()
     glDeleteVertexArrays(1, &vao_);
 }
 
-void Scene::init(GLuint colour, GLuint cam_transform, GLuint local_transform)
+void Scene::init(GLuint color, GLuint cam_transform, GLuint local_transform)
 {
     glGenVertexArrays(1, &vao_);
     glBindVertexArray(vao_);
@@ -52,7 +52,7 @@ void Scene::init(GLuint colour, GLuint cam_transform, GLuint local_transform)
     glBufferData(GL_ARRAY_BUFFER, 75 * sizeof(vec3), rot_controller_,
         GL_STATIC_DRAW);
 
-    colour_ = colour;
+    color_ = color;
     cam_transform_ = cam_transform;
     local_transform_ = local_transform;
 }
@@ -67,7 +67,7 @@ void Scene::add_direct(const char *obj_file, const ColorScheme & colorscheme)
 
     objects_.tail().load_file(obj_file);
     objects_.tail().set_colorscheme(colorscheme);
-    objects_.tail().set_attributes(colour_, local_transform_);
+    objects_.tail().set_attributes(color_, local_transform_);
 
     object_index_ = objects_.length() - 1;
     objects_[object_index_].active = true;
@@ -370,19 +370,19 @@ void Scene::build_rot_controller()
 
     // x-axis
     for (double t = 0; t < 2 * pi; t += 2 * pi / n)
-        rot_controller_[i++] = 0.2 * vec3(0, cos(t), sin(t));
+        rot_controller_[i++] = 0.3 * vec3(0, cos(t), sin(t));
 
     // y-axis
     for (double t = 0; t < 2 * pi; t += 2 * pi / n)
-        rot_controller_[i++] = 0.2 * vec3(cos(t), 0, sin(t));
+        rot_controller_[i++] = 0.3 * vec3(cos(t), 0, sin(t));
 
     // z-axis
     for (double t = 0; t < 2 * pi; t += 2 * pi / n)
-        rot_controller_[i++] = 0.2 * vec3(cos(t), sin(t), 0);
+        rot_controller_[i++] = 0.3 * vec3(cos(t), sin(t), 0);
 }
 
 void Scene::draw_grid() {
-    glUniform4fv(colour_, 1, (GLfloat*) &grid_colour_);
+    glUniform4fv(color_, 1, (GLfloat*) &grid_color_);
     glBindBuffer(GL_ARRAY_BUFFER, grid_buf_);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawArrays(GL_LINES, 0, 36);
@@ -390,7 +390,7 @@ void Scene::draw_grid() {
 
 void Scene::draw_cameras() {
     for(cam_geo_.set_iterator(); cam_geo_.iterator(); cam_geo_.iterate()) {
-        glUniform4fv(colour_, 1, (GLfloat*) &camera_colour_);
+        glUniform4fv(color_, 1, (GLfloat*) &camera_color_);
         glBindBuffer(GL_ARRAY_BUFFER, cam_geo_.get_iterator());
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glDrawArrays(GL_LINES, 0, 48);
@@ -408,29 +408,29 @@ void Scene::draw_active_controller()
 
     // Translation
     if (active_transform_ == Transformation::translation) {
-        vec4 tmp_colour;
+        vec4 tmp_color;
 
         glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-        tmp_colour = vec4(1, 0, 0, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(1, 0, 0, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_LINES, 0, 2);
 
-        tmp_colour = vec4(0, 1, 0, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(0, 1, 0, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_LINES, 2, 2);
 
-        tmp_colour = vec4(0, 0, 1, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(0, 0, 1, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_LINES, 4, 2);
 
         // Drawing arrows
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // x - axis
-        tmp_colour = vec4(1, 0, 0, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(1, 0, 0, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
 
         unsigned int x_arrow[12] = {
             1, 6, 8, 1, 8, 7, 1, 7, 9, 1, 9, 6
@@ -439,8 +439,8 @@ void Scene::draw_active_controller()
         glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (GLvoid *) & x_arrow);
 
         // y - axis
-        tmp_colour = vec4(0, 1, 0, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(0, 1, 0, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
 
         unsigned int y_arrow[12] = {
             3, 10, 12, 3, 12, 11, 3, 11, 13, 3, 13, 10
@@ -449,8 +449,8 @@ void Scene::draw_active_controller()
         glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (GLvoid *) & y_arrow);
 
         // z - axis
-        tmp_colour = vec4(0, 0, 1, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(0, 0, 1, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
 
         unsigned int z_arrow[12] = {
             5, 14, 16, 5, 16, 15, 5, 15, 17, 5, 17, 14
@@ -467,30 +467,30 @@ void Scene::draw_active_controller()
     if (active_transform_ == Transformation::scaling ||
         active_transform_ == Transformation::uniform_scaling) {
 
-        vec4 tmp_colour;
+        vec4 tmp_color;
 
         glBindBuffer(GL_ARRAY_BUFFER, move_controller_buf_);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
         glPointSize(8);
 
-        tmp_colour = vec4(1, 0, 0, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(1, 0, 0, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_POINTS, 1, 1);
         glDrawArrays(GL_LINES, 0, 2);
 
-        tmp_colour = vec4(0, 1, 0, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(0, 1, 0, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_POINTS, 3, 1);
         glDrawArrays(GL_LINES, 2, 2);
 
-        tmp_colour = vec4(0, 0, 1, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(0, 0, 1, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_POINTS, 5, 1);
         glDrawArrays(GL_LINES, 4, 2);
 
-        tmp_colour = vec4(1, 1, 1, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(1, 1, 1, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_POINTS, 0, 1);
 
         glPointSize(1);
@@ -498,27 +498,31 @@ void Scene::draw_active_controller()
 
     // Rotation
     if (active_transform_ == Transformation::rotation) {
-        vec4 tmp_colour;
+        vec4 tmp_color;
 
         glBindBuffer(GL_ARRAY_BUFFER, rot_controller_buf_);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-        tmp_colour = vec4(1, 0, 0, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(1, 0, 0, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_LINE_LOOP, 0, 25);
 
-        tmp_colour = vec4(0, 1, 0, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(0, 1, 0, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_LINE_LOOP, 25, 25);
 
-        tmp_colour = vec4(0, 0, 1, 1);
-        glUniform4fv(colour_, 1, (GLfloat*) & tmp_colour);
+        tmp_color = vec4(0, 0, 1, 1);
+        glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
         glDrawArrays(GL_LINE_LOOP, 50, 25);
     }
 }
 
 void Scene::use_camera(Camera cam) {
-    glUniform3fv(cam_transform_, 2, (GLfloat*) & cam);
+    mat4 transformation =
+        RotZ(-cam.t[1][2]) * RotX(-cam.t[1][0]) * RotY(-cam.t[1][1]) *
+        Translate(-cam.t[0]);
+
+    glUniformMatrix4fv(cam_transform_, 1, true, (GLfloat*) & transformation);
 }
 
 void Scene::previous_object()

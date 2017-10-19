@@ -11,8 +11,6 @@ To think about (have to):
     compiles because of shader_init.cpp, which is not so good: it's impossible
     to add something new to it with generic types, vectors and matrices.
 
-To add:
-
     * Adding new colour themes feature would be great. For example, define a
     structure ColorScheme, which holds six colors, that can be used as
     background, font, edges/faces, vertex normals, face normals colours,

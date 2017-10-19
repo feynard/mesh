@@ -442,7 +442,7 @@ ostream & operator << (ostream & os, const mat4 & A)
 mat4 RotX(const GLfloat theta)
 {
     return mat4(
-        1.0,        0.0,           0, 0.0,
+        1.0,        0.0,         0.0, 0.0,
         0.0, cos(theta), -sin(theta), 0.0,
         0.0, sin(theta),  cos(theta), 0.0,
         0.0,        0.0,         0.0, 1.0
@@ -466,6 +466,36 @@ mat4 RotZ(const GLfloat theta)
         sin(theta),  cos(theta), 0.0, 0.0,
                0.0,         0.0, 1.0, 0.0,
                0.0,         0.0, 0.0, 1.0
+    );
+}
+
+mat4 SmallRotX(const GLfloat theta)
+{
+    return mat4(
+        1.0,   0.0,    0.0, 0.0,
+        0.0,   1.0, -theta, 0.0,
+        0.0, theta,    1.0, 0.0,
+        0.0,   0.0,    0.0, 1.0
+    );
+}
+
+mat4 SmallRotY(const GLfloat theta)
+{
+    return mat4(
+          1.0, 0.0, -theta, 0.0,
+          0.0, 1.0,    0.0, 0.0,
+        theta, 0.0,    1.0, 0.0,
+          0.0, 0.0,    0.0, 1.0
+    );
+}
+
+mat4 SmallRotZ(const GLfloat theta)
+{
+    return mat4(
+          1.0, -theta, 0.0, 0.0,
+        theta,    1.0, 0.0, 0.0,
+          0.0,    0.0, 1.0, 0.0,
+          0.0,    0.0, 0.0, 1.0
     );
 }
 

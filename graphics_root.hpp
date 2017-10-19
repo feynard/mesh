@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_ROOT_HPP
 #define GRAPHICS_ROOT_HPP
 
-// macOS OpenGL
 #ifdef __APPLE__
     #include <OpenGL/gl.h>
     #define glGenVertexArrays glGenVertexArraysAPPLE
