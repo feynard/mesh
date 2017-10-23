@@ -4,7 +4,7 @@
 program file.obj
 
 ## Screenshot:
-![](/screen.png =800x)
+![](screen.png)
 
 ## Mesh class:
 It's a basic geometry container that supports reading from .obj files, simple
