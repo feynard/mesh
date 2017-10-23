@@ -9,7 +9,7 @@
 
 class Scene {
 
-    // Inner camera structure for holding transformations
+    // Inner camera structure
     struct Camera {
         Camera() { t[0] = 0, t[1] = 0; }
         Camera(vec3 pos, vec3 rot) { t[0] = pos, t[1] = rot; }
@@ -58,7 +58,7 @@ class Scene {
     GLfloat rot_s;
     GLfloat zoom_s;
 
-    // Vertex array object (VAO)
+    // Main vertex array object (VAO)
     GLuint vao_;
 
 public:
@@ -129,8 +129,8 @@ public:
     int local_transform(int axis, double delta_x, double delta_y,
         double x, double y);
 
-// Inner functions
 private:
+    // Geometry for scene objects
     void build_camera_model();
     void build_grid();
     void build_move_controller();
@@ -147,7 +147,7 @@ private:
     void draw_cameras();
     void draw_active_controller();
 
-    // Send camera transfomration
+    // Send camera transfomration to shader
     void use_camera(Camera cam);
 };
 
