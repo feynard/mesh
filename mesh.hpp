@@ -69,6 +69,8 @@ public:
     // Set colorscheme defined in colorscheme.hpp
     void set_colorscheme(const ColorScheme & colorscheme);
 
+    // Set shader attribute locations
+
     void set_attributes(GLuint color_location, GLuint local_transform);
 
     // Render geometry

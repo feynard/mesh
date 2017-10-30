@@ -1,12 +1,10 @@
 To think about (have to):
-    * Rewrite everything with std::vector and move semantics
 
-    * Rewrite everything with 4 by 4 matrices
+    * Rewrite everything with std::vector and move semantics (especially, mesh)
 
     * Local transformation controls, move, scale, rotate
 
-    * Child class of Mesh with "hardcoded" simple geometry. I still don't
-    understand what does it mean?
+    * Child class of Mesh with "hardcoded" simple geometry.
 
     * I think there should be done some work concerned with how .hpp files are
     included, for now there is some mess. For example, graphic_support.hpp

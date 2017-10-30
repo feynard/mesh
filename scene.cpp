@@ -119,9 +119,9 @@ void Scene::add_camera() {
     vec3 new_camera[48];
     for (int i = 0; i < 48; i++)
         new_camera[i] =
-            Ry(active_camera_.t[1][1]) *
+            Ry(-active_camera_.t[1][1]) *
             Rx(active_camera_.t[1][0]) *
-            Rz(active_camera_.t[1][2]) * camera_model_[i] +
+            Rz(active_camera_.t[1][2]) * Ry(pi) * camera_model_[i] +
             active_camera_.t[0];
 
     glBufferData(GL_ARRAY_BUFFER, 48 * sizeof(vec3), new_camera,
@@ -191,20 +191,20 @@ void Scene::update_camera_roll(int d) {
 
 void Scene::update_camera_zoom(int d) {
     vec3 v(0,0,1);
-    v = Ry(active_camera_.t[1][1]) * Rx(active_camera_.t[1][0]) * v;
+    v = Ry(-active_camera_.t[1][1]) * Rx(active_camera_.t[1][0]) * v;
     active_camera_.t[0] += zoom_s * d * v;
     camera_index_ = -1;
 }
 
 void Scene::update_camera_spherical(int dx, int dy) {
     active_camera_.t[0] =
-        Ry( rot_s * dx + active_camera_.t[1][1]) *
-        Rx(-rot_s * dy) *
-        Ry(-active_camera_.t[1][1]) *
+        Ry(rot_s * dx - active_camera_.t[1][1]) *
+        Rx(rot_s * dy) *
+        Ry(active_camera_.t[1][1]) *
         active_camera_.t[0];
 
-    active_camera_.t[1][0] -= rot_s * dy;
-    active_camera_.t[1][1] += rot_s * dx;
+    active_camera_.t[1][0] += rot_s * dy;
+    active_camera_.t[1][1] -= rot_s * dx;
 
     if (active_camera_.t[1][1] > 2 * pi)
         active_camera_.t[1][1] -= 2 * pi;

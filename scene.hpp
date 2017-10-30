@@ -15,6 +15,7 @@ class Scene {
         Camera(vec3 pos, vec3 rot) { t[0] = pos, t[1] = rot; }
 
         // 0 - position, 1 - rotation
+        mat4 projection;
         vec3 t[2];
     };
 
@@ -43,7 +44,8 @@ class Scene {
 
     // Transformation controllers
     enum class Transformation {
-        disabled, translation, scaling, uniform_scaling, rotation};
+        disabled, translation, scaling, uniform_scaling, rotation
+    };
 
     Transformation active_transform_;
 

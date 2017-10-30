@@ -72,8 +72,9 @@ GLuint ShaderInit(const char* vertex_shader, const char* fragment_shader)
 	    glAttachShader(program, shader);
     }
 
-    // Link error check
     glLinkProgram(program);
+
+    // Link error check
 
     GLint  linked;
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
