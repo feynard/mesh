@@ -20,6 +20,8 @@ class Scene {
                 0.0, 0.0,  1.0, 0.0,
                 0.0, 0.0, -1.0, 0.0
             );
+
+            parallel_projection = false;
         }
 
         Camera(vec3 pos, vec3 rot) {
@@ -31,6 +33,8 @@ class Scene {
                 0.0, 0.0,  1.0, 0.0,
                 0.0, 0.0, -1.0, 0.0
             );
+
+            parallel_projection = false;
         }
 
         // 0 - position, 1 - rotation
@@ -38,6 +42,7 @@ class Scene {
 
         // Projection matrix
         mat4 projection;
+        bool parallel_projection;
     };
 
     List <Mesh> objects_;       // Main geometry of a scene, that is .obj files
@@ -124,6 +129,9 @@ public:
     // Switch between cameras
     void previous_camera();
     void next_camera();
+
+    // Switch camera projection: persepctive/parallel
+    void switch_projection();
 
     // Switch between objects
     void previous_object();

@@ -17,7 +17,7 @@
 #endif
 
 // Text cheat shit Draw
-void DrawInterface(GLuint color_location);
+//void DrawInterface(GLuint color_location);
 
 // Helper function to load vertex and fragment shader files
 GLuint ShaderInit(const char* vertex_shader, const char* fragment_shader);

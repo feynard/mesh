@@ -130,6 +130,28 @@ void Scene::add_camera() {
     cam_geo_.push(tmp_buf);
 }
 
+void Scene::switch_projection()
+{
+    if (active_camera_.parallel_projection) {
+        active_camera_.projection = mat4(
+            1.0, 0.0,  0.0, 0.0,
+            0.0, 1.0,  0.0, 0.0,
+            0.0, 0.0,  1.0, 0.0,
+            0.0, 0.0, -1.0, 0.0
+        );
+        active_camera_.parallel_projection = false;
+    } else {
+        active_camera_.projection = mat4(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        );
+        active_camera_.parallel_projection = true;
+    }
+}
+
+
 void Scene::draw() {
     use_camera(active_camera_);
 
@@ -628,53 +650,40 @@ void Scene::axis_transform(unsigned int axis, double delta_x, double delta_y)
 
     vec2 p = camera_plane_projection(objects_[object_index_].pivot);
 
-    vec2 end_p;
-
-    end_p = camera_plane_projection(objects_[object_index_].pivot +
+    vec2 end_p = camera_plane_projection(objects_[object_index_].pivot +
         move_controller_[2 * axis + 1]);
 
+    vec2 direction = normalize(end_p - p);
+    
     vec2 dv = vec2(delta_x, delta_y);
 
-    double delta_plane = dot(end_p - p, dv) / length(end_p - p);
-
-    vec3 cam_vec =
-        Ry(active_camera_.t[1][1]) *
-        Rx(active_camera_.t[1][0]) * vec3(0, 0, 1);
-
-    double C = dot(cam_vec, move_controller_[2 * axis + 1]) /
-        length(move_controller_[2 * axis + 1]);
-
-    if (C == 1)
-        return;
-
-    double d_axis = delta_plane / sqrt(1 - C * C);
 
     if (active_transform_ == Transformation::translation)
         switch (axis) {
             case 0:
-                objects_[object_index_].pivot.x += d_axis;
-                t = Translate(d_axis, 0, 0);
+                objects_[object_index_].pivot.x += dot(direction, dv);
+                t = Translate(dot(direction, dv), 0, 0);
                 break;
             case 1:
-                objects_[object_index_].pivot.y += d_axis;
-                t = Translate(0, d_axis, 0);
+                objects_[object_index_].pivot.y += dot(direction, dv);
+                t = Translate(0, dot(direction, dv), 0);
                 break;
             case 2:
-                objects_[object_index_].pivot.z += d_axis;
-                t = Translate(0, 0, d_axis);
+                objects_[object_index_].pivot.z += dot(direction, dv);
+                t = Translate(0, 0, dot(direction, dv));
                 break;
         }
 
     if (active_transform_ == Transformation::scaling) {
         switch (axis) {
             case 0:
-                t = ScaleX(1 + d_axis);
+                t = ScaleX(1 + dot(direction, dv));
                 break;
             case 1:
-                t = ScaleY(1 + d_axis);
+                t = ScaleY(1 + dot(direction, dv));
                 break;
             case 2:
-                t = ScaleZ(1 + d_axis);
+                t = ScaleZ(1 + dot(direction, dv));
                 break;
         }
 

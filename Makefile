@@ -2,7 +2,7 @@
 
 CC = g++
 GCC_FLAGS = -Wall -Werror -pedantic -std=c++11
-OBJECTS = main.o mesh.o shader_init.o vec.o mat.o scene.o text_interface.o
+OBJECTS = main.o mesh.o shader_init.o vec.o mat.o scene.o # text_interface.o
 
 # OS check
 
@@ -36,8 +36,8 @@ mat.o: graphics_root.hpp mat.hpp mat.cpp vec.hpp
 shader_init.o: shader_init.cpp graphics.hpp
 	$(CC) $(GCC_FLAGS) -c shader_init.cpp
 
-text_interface.o: text_interface.cpp graphics.hpp
-	$(CC) $(GCC_FLAGS) -c text_interface.cpp
+#text_interface.o: text_interface.cpp graphics.hpp
+#	$(CC) $(GCC_FLAGS) -c text_interface.cpp
 
 scene.o: scene.hpp scene.cpp list.hpp mesh.hpp graphics_root.hpp
 	$(CC) $(GCC_FLAGS) -c scene.cpp

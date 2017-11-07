@@ -45,7 +45,7 @@ void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     my_scene.draw();
-    DrawInterface(Color);
+//    DrawInterface(Color);
     glutSwapBuffers();
 }
 
@@ -92,6 +92,8 @@ void keyboard(unsigned char key, int x, int y)
         my_scene.activate_scaling();
     if (key == 'e')
         my_scene.activate_rotation();
+    if (key == 'p')
+        my_scene.switch_projection();
 
     glutPostRedisplay();
 }
