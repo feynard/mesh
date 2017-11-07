@@ -166,7 +166,8 @@ void mouse_motion(int x, int y)
 int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+
     glutInitWindowSize(960, 600);
     glutCreateWindow("Mesh");
 
@@ -178,6 +179,9 @@ int main(int argc, char **argv)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    cout << "OpenGL: "<< glGetString(GL_VERSION) << endl;
+    cout << "GLSL: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
     Init(argc, argv);
 

@@ -24,12 +24,17 @@ const char * interface[] = {
 void DrawInterface(GLuint color_location)
 {
     glUniform4f(color_location, 42 / 255.0, 161 / 255.0, 152 / 255.0, 1);
+    glUniform4f(color_location, 0 / 255.0, 0 / 255.0, 0 / 255.0, 1);
 
-    int x = 5, y = 5;
+//    int x = 5, y = 5;
 
+    glWindowPos2iARB(5, 5);
+    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, 'X');
+/*
     for (unsigned int i = 0; i < sizeof(interface) / sizeof(char*); i++) {
-        glWindowPos2i(x, y + i * 18);
+        glWindowPos2iARB(x, y + i * 18);
         for (unsigned int j = 0; j < strlen(interface[i]); j++)
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, interface[i][j]);
     }
+*/
 }

@@ -206,6 +206,10 @@ struct mat4 {
     // Matrix multiplication
     friend mat4 operator * (const mat4 & A, const mat4 & B);
 
+    // Matrix-vector multiplication
+    friend vec4 operator * (const mat4& A, const vec4& v);
+    friend vec3 operator * (const mat4& A, const vec3& v);
+
     // Output
     friend ostream& operator << (ostream& os, const mat4 & A);
 };

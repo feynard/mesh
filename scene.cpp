@@ -361,7 +361,6 @@ void Scene::build_move_controller()
     move_controller_[15] = vec3( 0.00, -0.02, 0.25);
     move_controller_[16] = vec3( 0.02,  0.00, 0.25);
     move_controller_[17] = vec3(-0.02,  0.00, 0.25);
-
 }
 
 void Scene::build_rot_controller()
@@ -432,11 +431,9 @@ void Scene::draw_active_controller()
         tmp_color = vec4(1, 0, 0, 1);
         glUniform4fv(color_, 1, (GLfloat*) & tmp_color);
 
-        unsigned int x_arrow[12] = {
-            1, 6, 8, 1, 8, 7, 1, 7, 9, 1, 9, 6
-        };
+        unsigned int x_arrow[5] = { 1, 6, 7, 8, 9 };
 
-        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, (GLvoid *) & x_arrow);
+        glDrawElements(GL_TRIANGLE_FAN, 5, GL_UNSIGNED_INT, (GLvoid *) x_arrow);
 
         // y - axis
         tmp_color = vec4(0, 1, 0, 1);
@@ -519,6 +516,7 @@ void Scene::draw_active_controller()
 
 void Scene::use_camera(Camera cam) {
     mat4 transformation =
+        active_camera_.projection *
         RotZ(-cam.t[1][2]) * RotX(-cam.t[1][0]) * RotY(-cam.t[1][1]) *
         Translate(-cam.t[0]);
 
@@ -582,9 +580,18 @@ bool Scene::transformation_is_active()
 
 vec2 Scene::camera_plane_projection(vec3 point)
 {
-    vec3 a = active_camera_.t[1];
-    vec3 p = Rz(-a.z) * Rx(-a.x) * Ry(-a.y) * (point - active_camera_.t[0]);
-    return vec2(p.x, p.y);
+    vec4 u(point, 1);
+
+    mat4 transformation =
+        active_camera_.projection *
+        RotZ(-active_camera_.t[1][2]) *
+        RotX(-active_camera_.t[1][0]) *
+        RotY(-active_camera_.t[1][1]) *
+        Translate(-active_camera_.t[0]);
+
+    vec4 p = transformation * u;
+
+    return vec2(p.x / p.w, p.y / p.w);
 }
 
 void Scene::axis_transform(unsigned int axis, double delta_x, double delta_y)

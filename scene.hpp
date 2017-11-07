@@ -11,12 +11,33 @@ class Scene {
 
     // Inner camera structure
     struct Camera {
-        Camera() { t[0] = 0, t[1] = 0; }
-        Camera(vec3 pos, vec3 rot) { t[0] = pos, t[1] = rot; }
+        Camera() {
+            t[0] = 0, t[1] = 0;
+
+            projection = mat4(
+                1.0, 0.0,  0.0, 0.0,
+                0.0, 1.0,  0.0, 0.0,
+                0.0, 0.0,  1.0, 0.0,
+                0.0, 0.0, -1.0, 0.0
+            );
+        }
+
+        Camera(vec3 pos, vec3 rot) {
+            t[0] = pos, t[1] = rot;
+
+            projection = mat4(
+                1.0, 0.0,  0.0, 0.0,
+                0.0, 1.0,  0.0, 0.0,
+                0.0, 0.0,  1.0, 0.0,
+                0.0, 0.0, -1.0, 0.0
+            );
+        }
 
         // 0 - position, 1 - rotation
-        mat4 projection;
         vec3 t[2];
+
+        // Projection matrix
+        mat4 projection;
     };
 
     List <Mesh> objects_;       // Main geometry of a scene, that is .obj files

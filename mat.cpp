@@ -434,6 +434,23 @@ mat4 operator * (const mat4 & A, const mat4 & B)
     return C;
 }
 
+vec4 operator * (const mat4& A, const vec4& v)
+{
+    vec4 u;
+    for (int i = 0; i < 4; i++)
+            u[i] =
+                A[i][0] * v.x + A[i][1] * v.y + A[i][2] * v.z + A[i][3] * v.w;
+
+    return u;
+}
+
+vec3 operator * (const mat4& A, const vec3& v)
+{
+    vec4 u = vec4(v, 1);
+    u = A * u;
+    return vec3(u.x, u.y, u.z);
+}
+
 ostream & operator << (ostream & os, const mat4 & A)
 {
     return os << A[0] << endl << A[1] << endl << A[2] << endl << A[3];
